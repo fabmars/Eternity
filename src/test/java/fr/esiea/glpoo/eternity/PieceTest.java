@@ -23,24 +23,22 @@ public class PieceTest {
   Piece p2 = new Piece(2, f2, f1a, f3, f4);
   
   @Test
-  public void testFaceEquals() {
+  public void testFaceSame() {
     Assert.assertSame(f1a, f1b);
   }
 
   @Test
   public void testFaceDifferent() {
-    Assert.assertSame(f1a, f2);
+    Assert.assertNotSame(f1a, f2);
+  }
+  
+  @Test
+  public void testPieceRotatedIsSame() {
+    Assert.assertSame(p1a, p1b);
   }
   
   @Test
   public void testPieceDifferent() {
     Assert.assertNotSame(p1a, p2);
   }
-  
-  @Test
-  public void testPieceRotated() {
-    Assert.assertSame(p1a, p1b);
-  }
-  
-  
 }
