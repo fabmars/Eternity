@@ -3,31 +3,22 @@ package fr.esiea.glpoo.eternity.domain;
 import java.awt.Color;
 import java.util.Objects;
 
-public class Face {
+public class Face extends Item {
 
   private FaceType type;
-  private int id;
   private Color backgroundColor;
   private Pattern pattern; //may be null for type EDGE
   private Color patternColor; //hence may be null too
   
   
-  public Face() {
-  }
-
-
   public Face(int id, FaceType type, Color backgroundColor, Pattern pattern, Color patternColor) {
-    this.id = Objects.requireNonNull(id);
+    super( Objects.requireNonNull(id));
     this.type = Objects.requireNonNull(type);
     this.backgroundColor = Objects.requireNonNull(backgroundColor);
     this.pattern = pattern;
     this.patternColor = patternColor;
   }
 
-
-  public int getId() {
-    return id;
-  }
 
   public FaceType getType() {
     return type;
@@ -61,7 +52,7 @@ public class Face {
   @Override
   public String toString() {
     return new StringBuilder()
-    .append(id)
+    .append(getId())
     .append(": ")
     .append(type)
     .append(" ")

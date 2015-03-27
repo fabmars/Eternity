@@ -1,19 +1,16 @@
 package fr.esiea.glpoo.eternity.io;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import fr.esiea.glpoo.eternity.domain.Face;
-import fr.esiea.glpoo.eternity.domain.FaceStore;
+import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Piece;
 
 public class PieceDao extends GenericDao<Piece> {
 
-  private FaceStore faceStore;
-  private List<Piece> pieces = new LinkedList<>();
+  private ItemStore<Face> faceStore;
+  private ItemStore<Piece> store = new ItemStore<Piece>();
   
 
-  public PieceDao(FaceStore faceStore) {
+  public PieceDao(ItemStore<Face> faceStore) {
     this.faceStore = faceStore;
   }
 
@@ -37,10 +34,10 @@ public class PieceDao extends GenericDao<Piece> {
 
   @Override
   public void insert(Piece piece) {
-    pieces.add(piece);
+    store.add(piece);
   }
 
-  public List<Piece> getPieces() {
-    return pieces;
+  public ItemStore<Piece> getPieces() {
+    return store;
   }
 }

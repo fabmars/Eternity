@@ -3,14 +3,13 @@ package fr.esiea.glpoo.eternity.domain;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Piece {
+public class Piece extends Item {
 
   public final static int NORTH = 0;
   public final static int WEST = NORTH + 1;
   public final static int SOUTH = WEST + 1;
   public final static int EAST = SOUTH + 1;
   
-  private int id;
   private Face[] faces; //order: NWSE
   //FIXME ADD ORIENTATION
   
@@ -20,7 +19,7 @@ public class Piece {
    * @param p
    */
   public Piece(Piece p) {
-    this(p.id, p.getNorth(), p.getWest(), p.getSouth(), p.getEast());
+    this(p.getId(), p.getNorth(), p.getWest(), p.getSouth(), p.getEast());
   }
 
   /**
@@ -32,16 +31,13 @@ public class Piece {
    * @param eastFace
    */
   public Piece(int id, Face northFace, Face westFace, Face southFace, Face eastFace) {
+    super(id);
     faces = new Face[]{Objects.requireNonNull(northFace),
                        Objects.requireNonNull(westFace),
                        Objects.requireNonNull(southFace),
                        Objects.requireNonNull(eastFace)};
   }
 
-  public int getId() {
-    return id;
-  }
-  
   public Face getNorth() {
     return faces[NORTH];
   }
@@ -93,7 +89,7 @@ public class Piece {
   @Override
   public String toString() {
     return new StringBuilder()
-    .append(id)
+    .append(getId())
     .append(": ")
     .append(faces)
     .toString();

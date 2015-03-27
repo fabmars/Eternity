@@ -1,18 +1,18 @@
 package fr.esiea.glpoo.eternity.io;
 
 import fr.esiea.glpoo.eternity.domain.Face;
-import fr.esiea.glpoo.eternity.domain.FaceStore;
+import fr.esiea.glpoo.eternity.domain.ItemStore;
 
 
 /**
- * Can't be an AdapterCsv, we need to ba able to fetch from the FaceStore,
+ * Can't be an AdapterCsv, we need to ba able to fetch from the ItemStore<Face>,
  * and I wouldn't use a singleton
  */
 public class FaceAdapter implements Adapter<Face> {
 
-  private FaceStore faceStore;
+  private ItemStore<Face> faceStore;
   
-  public FaceAdapter(FaceStore faceStore) {
+  public FaceAdapter(ItemStore<Face> faceStore) {
     this.faceStore = faceStore;
   }
   

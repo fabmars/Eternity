@@ -3,16 +3,16 @@ package fr.esiea.glpoo.eternity.io;
 import java.awt.Color;
 
 import fr.esiea.glpoo.eternity.domain.Face;
-import fr.esiea.glpoo.eternity.domain.FaceStore;
 import fr.esiea.glpoo.eternity.domain.FaceType;
+import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Pattern;
 
 public class FaceDao extends GenericDao<Face> {
 
-  private FaceStore faceStore;
+  private ItemStore<Face> faceStore;
   private FrenchColorAdapter colorAdapter;
   
-  public FaceDao(FaceStore faceStore) {
+  public FaceDao(ItemStore<Face> faceStore) {
     this.faceStore = faceStore;
     this.colorAdapter = new FrenchColorAdapter();
   }

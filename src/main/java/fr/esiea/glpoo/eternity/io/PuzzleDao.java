@@ -10,7 +10,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.esiea.glpoo.eternity.domain.FaceStore;
+import fr.esiea.glpoo.eternity.domain.EternityException;
+import fr.esiea.glpoo.eternity.domain.Face;
+import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
 
@@ -24,8 +26,9 @@ public class PuzzleDao {
    * @return
    * @throws IOException
    * @throws CsvException 
+   * @throws EternityException 
    */
-  public Puzzle loadPuzzle(Path stateFile) throws IOException, CsvException {
+  public Puzzle loadPuzzle(Path stateFile) throws IOException, CsvException, EternityException {
     
     try(BufferedReader br = Files.newBufferedReader(stateFile, cs)) {
       Path facesFile = Paths.get("TODO");
@@ -43,26 +46,32 @@ public class PuzzleDao {
    * @return
    * @throws IOException
    * @throws CsvException 
+   * @throws EternityException 
    */
-  public Puzzle loadPuzzle(Path facesFile, Path piecesFile) throws IOException, CsvException {
-    FaceStore fs = loadFaces(facesFile);
-    List<Piece> pieces = loadPieces(piecesFile, fs);
-
-    int pieceCount = pieces.size();
-    if(pieceCount > 0) {
-      //FIXME List<Integer> factor = primeFactors(pieceCount);
-      Puzzle puzzle = new Puzzle(4, 4, pieces); //FIXME
-      return puzzle;
+  public Puzzle loadPuzzle(Path facesFile, Path piecesFile) throws IOException, CsvException, EternityException {
+    ItemStore<Face> fs = loadFaces(facesFile);
+    
+    ItemStore<Piece> pieces = loadPieces(piecesFile, fs);
+    if(!pieces.isUnicity()) {
+      int pieceCount = pieces.size();
+      if(pieceCount > 0) {
+        //FIXME List<Integer> factor = primeFactors(pieceCount);
+        Puzzle puzzle = new Puzzle(4, 4, pieces.toArray()); //FIXME
+        return puzzle;
+      }
+      else {
+        throw new CsvException("Empty pieces file: " + piecesFile);
+      }
     }
     else {
-      throw new CsvException("Empty pieces file: " + piecesFile);
+      throw new EternityException("Pieces are not unique!");
     }
   }
 
   
   //FIXME throw exception if 1
-  public FaceStore loadFaces(Path facesFile) throws IOException {
-    FaceStore fs = new FaceStore();
+  public ItemStore<Face> loadFaces(Path facesFile) throws IOException {
+    ItemStore<Face> fs = new ItemStore<Face>();
     
     try(BufferedReader br = Files.newBufferedReader(facesFile, cs)) {
       new FaceDao(fs).parse(br);
@@ -71,7 +80,7 @@ public class PuzzleDao {
   }
 
   //FIXME throw exception if 1
-  public List<Piece> loadPieces(Path piecesFile, FaceStore fs) throws IOException {
+  public ItemStore<Piece> loadPieces(Path piecesFile, ItemStore<Face> fs) throws IOException {
     PieceDao pieceDao = new PieceDao(fs);
     try(BufferedReader br = Files.newBufferedReader(piecesFile, cs)) {
       pieceDao.parse(br);
