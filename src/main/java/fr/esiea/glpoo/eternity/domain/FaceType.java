@@ -1,25 +1,26 @@
 package fr.esiea.glpoo.eternity.domain;
 
 public enum FaceType {
-  EDGE('B'),
-  FACE('F');
+  EDGE("B"),
+  FACE("F");
   
-  private char code;
+  private String code;
   
-  private FaceType(char code) {
+  private FaceType(String code) {
     this.code = code;
   }
 
-  public char getCode() {
+  public String getCode() {
     return code;
   }
-  
-  public FaceType getByCode(char code) {
+
+  public static FaceType getByCode(String code) {
     for(FaceType type : values()) {
-      if(type.getCode() == code) {
+      if(type.getCode().equalsIgnoreCase(code)) {
         return type;
       }
     }
-    throw new IllegalArgumentException("Unknown FaceType: " + code);
+    throw new EnumConstantNotPresentException(FaceType.class, code);
   }
+  
 }

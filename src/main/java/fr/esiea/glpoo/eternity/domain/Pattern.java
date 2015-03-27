@@ -16,13 +16,13 @@ public enum Pattern {
     return code;
   }
   
-  public Pattern getByCode(String code) {
+  public static Pattern getByCode(String code) {
     for(Pattern pattern : values()) {
       if(pattern.getCode().equalsIgnoreCase(code)) {
         return pattern;
       }
     }
-    throw new IllegalArgumentException("Unknown Pattern: " + code);
+    throw new EnumConstantNotPresentException(Pattern.class, code);
   }
   
 }

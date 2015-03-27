@@ -1,14 +1,15 @@
 package fr.esiea.glpoo.eternity.domain;
 
 import java.awt.Color;
+import java.util.Objects;
 
 public class Face {
 
-  private int id;
   private FaceType type;
+  private int id;
   private Color backgroundColor;
-  private Pattern pattern; //may be null
-  private Color patternColor;
+  private Pattern pattern; //may be null for type EDGE
+  private Color patternColor; //hence may be null too
   
   
   public Face() {
@@ -16,10 +17,9 @@ public class Face {
 
 
   public Face(int id, FaceType type, Color backgroundColor, Pattern pattern, Color patternColor) {
-    super();
-    this.id = id;
-    this.type = type;
-    this.backgroundColor = backgroundColor;
+    this.id = Objects.requireNonNull(id);
+    this.type = Objects.requireNonNull(type);
+    this.backgroundColor = Objects.requireNonNull(backgroundColor);
     this.pattern = pattern;
     this.patternColor = patternColor;
   }
@@ -58,11 +58,6 @@ public class Face {
         && patternColor.equals(face.patternColor);
   }
 
-  @Override
-  public int hashCode() {
-    return id;
-  }
-  
   @Override
   public String toString() {
     return new StringBuilder()

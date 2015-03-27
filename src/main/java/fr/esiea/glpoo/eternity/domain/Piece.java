@@ -1,32 +1,41 @@
 package fr.esiea.glpoo.eternity.domain;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Piece {
 
   public final static int NORTH = 0;
-  public final static int WEST = 1;
-  public final static int SOUTH = 2;
-  public final static int EAST = 3;
+  public final static int WEST = NORTH + 1;
+  public final static int SOUTH = WEST + 1;
+  public final static int EAST = SOUTH + 1;
   
   private int id;
   private Face[] faces; //order: NWSE
+  //FIXME ADD ORIENTATION
+  
   
   /**
    * copy ctor
    * @param p
    */
-  public Piece(Piece p) {
+  private Piece(Piece p) {
     this(p.id, p.getNorth(), p.getWest(), p.getSouth(), p.getEast());
   }
-  
+
+  /**
+   * ctor
+   * @param id
+   * @param northFace
+   * @param westFace
+   * @param southFace
+   * @param eastFace
+   */
   public Piece(int id, Face northFace, Face westFace, Face southFace, Face eastFace) {
-    Objects.requireNonNull(northFace);
-    Objects.requireNonNull(westFace);
-    Objects.requireNonNull(southFace);
-    Objects.requireNonNull(eastFace);
-    
-    faces = new Face[]{northFace, westFace, southFace, eastFace};
+    faces = new Face[]{Objects.requireNonNull(northFace),
+                       Objects.requireNonNull(westFace),
+                       Objects.requireNonNull(southFace),
+                       Objects.requireNonNull(eastFace)};
   }
 
   public int getId() {
@@ -49,7 +58,7 @@ public class Piece {
     return faces[EAST];
   }
   
-  public void rotate() {
+  public void rotateClockwise() {
     Face northFace = faces[NORTH];
     faces[NORTH] = faces[WEST];
     faces[WEST] = faces[SOUTH];
@@ -62,27 +71,19 @@ public class Piece {
    * taking into account the fact they may be rotated with one-another
    */
   @Override
-  public boolean equals(Object obj) {
-    Piece p = new Piece((Piece)obj); //copy not to alter the original
+  public boolean equals(Object other) {
+    Piece otherCopy = new Piece((Piece)other); //copy, not to alter the original
     
     for(int i = 0; i < 4; i++) {
-      if(getNorth().equals(p.getNorth())
-      && getWest().equals(p.getWest())
-      && getSouth().equals(p.getSouth())
-      && getEast().equals(p.getEast())) {
+      if(Arrays.equals(faces, otherCopy.faces)) {
         return true;
       }
       else {
-        p.rotate();
+        otherCopy.rotateClockwise();
       }
     }
     
     return false;
-  }
-
-  @Override
-  public int hashCode() {
-    return id;
   }
 
   @Override
