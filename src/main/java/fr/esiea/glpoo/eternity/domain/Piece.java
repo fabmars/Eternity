@@ -19,7 +19,7 @@ public class Piece {
    * copy ctor
    * @param p
    */
-  private Piece(Piece p) {
+  public Piece(Piece p) {
     this(p.id, p.getNorth(), p.getWest(), p.getSouth(), p.getEast());
   }
 
@@ -58,12 +58,16 @@ public class Piece {
     return faces[EAST];
   }
   
-  public void rotateClockwise() {
+  /**
+   * @return Caution, returns itself after rotation!
+   */
+  public Piece rotateClockwise() {
     Face northFace = faces[NORTH];
     faces[NORTH] = faces[WEST];
     faces[WEST] = faces[SOUTH];
     faces[SOUTH] = faces[EAST];
     faces[EAST] = northFace;
+    return this;
   }
   
   /**
