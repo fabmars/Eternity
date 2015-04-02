@@ -18,15 +18,15 @@ public class PieceDao extends GenericDao<Piece> {
   public Piece parseLine(String[] parts) throws CsvException {
     int i = 1; //skipping first P
     int id = Integer.parseInt(parts[i++].trim());
-    int fidNorth = Integer.parseInt(parts[i++]);
-    int fidEast = Integer.parseInt(parts[i++]);
-    int fidSouth = Integer.parseInt(parts[i++]);
-    int fidWest = Integer.parseInt(parts[i++]);
+    int idNorth = Integer.parseInt(parts[i++]);
+    int idEast = Integer.parseInt(parts[i++]);
+    int idSouth = Integer.parseInt(parts[i++]);
+    int idWest = Integer.parseInt(parts[i++]);
     
-    Face northFace = faceStore.get(fidNorth);
-    Face eastFace = faceStore.get(fidEast);
-    Face southFace = faceStore.get(fidSouth);
-    Face westFace = faceStore.get(fidWest);
+    Face northFace = faceStore.get(idNorth);
+    Face eastFace = faceStore.get(idEast);
+    Face southFace = faceStore.get(idSouth);
+    Face westFace = faceStore.get(idWest);
     
     Piece piece = new Piece(id, northFace, westFace, southFace, eastFace);
     return piece;
