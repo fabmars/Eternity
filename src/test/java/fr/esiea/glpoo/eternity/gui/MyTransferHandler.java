@@ -1,8 +1,6 @@
 package fr.esiea.glpoo.eternity.gui;
 
-import java.awt.Component;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -10,10 +8,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
 import javax.swing.JComponent;
-import javax.swing.JTable;
 import javax.swing.TransferHandler;
-import javax.swing.TransferHandler.TransferSupport;
-import javax.swing.table.TableModel;
 
 public class MyTransferHandler extends TransferHandler {
 
@@ -79,10 +74,12 @@ public class MyTransferHandler extends TransferHandler {
       int col = table.columnAtPoint(dropPoint);
 
       MyTableModel model = table.getModel();
-      model.setValueAt(data, row, col);
-      model.fireTableCellUpdated(row, col);
-      
-      return true;
+      Object currentValue = model.getValueAt(row, col);
+      if(currentValue == null) { //if there's currently no vlau eon that cell
+        model.setValueAt(data, row, col);
+        model.fireTableCellUpdated(row, col);
+        return true;
+      }
     }
     return false;
   }

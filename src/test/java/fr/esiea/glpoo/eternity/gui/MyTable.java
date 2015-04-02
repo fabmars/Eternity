@@ -13,8 +13,6 @@ public class MyTable extends JTable {
   
   public MyTable(MyTableModel tableModel) {
     super(tableModel);
-    
-    //setDefaultRenderer(String.class, new MyCellRenderer());
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
   }
   
