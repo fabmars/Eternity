@@ -75,7 +75,7 @@ public class MyTransferHandler extends TransferHandler {
 
       MyTableModel model = table.getModel();
       Object currentValue = model.getValueAt(row, col);
-      if(currentValue == null) { //if there's currently no vlau eon that cell
+      if(currentValue == null) { //if there's currently no value on that cell
         model.setValueAt(data, row, col);
         model.fireTableCellUpdated(row, col);
         return true;
