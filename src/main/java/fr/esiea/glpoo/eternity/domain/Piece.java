@@ -1,17 +1,17 @@
 package fr.esiea.glpoo.eternity.domain;
 
+import static fr.esiea.glpoo.eternity.domain.Orientation.EAST;
+import static fr.esiea.glpoo.eternity.domain.Orientation.NORTH;
+import static fr.esiea.glpoo.eternity.domain.Orientation.SOUTH;
+import static fr.esiea.glpoo.eternity.domain.Orientation.WEST;
+
 import java.util.Arrays;
 import java.util.Objects;
 
 public class Piece extends Item {
-
-  public final static int NORTH = 0;
-  public final static int WEST = NORTH + 1;
-  public final static int SOUTH = WEST + 1;
-  public final static int EAST = SOUTH + 1;
   
-  private Face[] faces; //order: NWSE
-  //FIXME ADD ORIENTATION
+  private Face[] faces; //order: this of the Orientation enum elements
+  private Orientation orientation;
   
   
   /**
@@ -39,30 +39,33 @@ public class Piece extends Item {
   }
 
   public Face getNorth() {
-    return faces[NORTH];
+    return faces[Orientation.NORTH.ordinal()];
   }
   
   public Face getWest() {
-    return faces[WEST];
+    return faces[Orientation.WEST.ordinal()];
   }
   
   public Face getSouth() {
-    return faces[SOUTH];
+    return faces[Orientation.SOUTH.ordinal()];
   }
   
   public Face getEast() {
-    return faces[EAST];
+    return faces[Orientation.EAST.ordinal()];
   }
   
   /**
    * @return Caution, returns itself after rotation!
    */
-  public Piece rotateClockwise() {
-    Face northFace = faces[NORTH];
-    faces[NORTH] = faces[WEST];
-    faces[WEST] = faces[SOUTH];
-    faces[SOUTH] = faces[EAST];
-    faces[EAST] = northFace;
+  public synchronized Piece rotateClockwise() {
+    Face northFace = faces[Orientation.NORTH.ordinal()];
+    faces[NORTH.ordinal()] = faces[Orientation.WEST.ordinal()];
+    faces[WEST.ordinal()] = faces[Orientation.SOUTH.ordinal()];
+    faces[SOUTH.ordinal()] = faces[Orientation.EAST.ordinal()];
+    faces[EAST.ordinal()] = northFace;
+    
+    orientation = orientation.nextClockwise();
+    
     return this;
   }
   
