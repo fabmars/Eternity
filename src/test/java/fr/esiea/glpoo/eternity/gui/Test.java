@@ -12,6 +12,8 @@ import javax.swing.border.EmptyBorder;
 
 public class Test extends JFrame {
 
+  private static final long serialVersionUID = 1L;
+  
   private JPanel contentPane;
   private MyTable tableDest;
   private MyTable tableSource;
@@ -21,6 +23,7 @@ public class Test extends JFrame {
    */
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         try {
           Test frame = new Test();
