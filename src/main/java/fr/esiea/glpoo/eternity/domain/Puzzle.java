@@ -6,12 +6,13 @@ import java.util.Iterator;
 
 public class Puzzle {
 
-  private Piece[][] pieces;
   private int rows, cols;
+  private Piece[][] pieces;
   
   public Puzzle(int rows, int cols) {
     this.rows = rows;
     this.cols = cols;
+    pieces = new Piece[rows][cols];
   }
   
   public Puzzle(int rows, int cols, Collection<Piece> pieces) {
@@ -42,5 +43,22 @@ public class Puzzle {
   
   public Piece getPiece(int row, int col) {
     return pieces[row][col];
+  }
+
+  /**
+   * @param piece null means there is no piece in the slot
+   * @param row
+   * @param col
+   */
+  public void setPiece(Piece piece, int row, int col) {
+    pieces[row][col] = piece;
+  }
+  
+  public int getRows() {
+    return rows;
+  }
+
+  public int getCols() {
+    return cols;
   }
 }
