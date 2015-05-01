@@ -23,6 +23,14 @@ public class Face extends Item {
   public FaceType getType() {
     return type;
   }
+  
+  public boolean isEdge() {
+    return type == FaceType.EDGE;
+  }
+
+  public boolean isFace() {
+    return type == FaceType.FACE;
+  }
 
   public Color getBackgroundColor() {
     return backgroundColor;
