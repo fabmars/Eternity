@@ -1,4 +1,4 @@
-package fr.esiea.glpoo.eternity.gui;
+package fr.esiea.glpoo.eternity.dnd;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
