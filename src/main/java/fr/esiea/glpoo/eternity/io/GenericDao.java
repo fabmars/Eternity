@@ -11,7 +11,7 @@ import java.io.Reader;
  */
 public abstract class GenericDao<T> {
 
-  public static final String DEFAULT_SEAPRATOR = ";";
+  public static final String DEFAULT_SEPARATOR = ";";
   public static final String DEFAULT_COMMENT = "#";
   public static final int DEFAULT_MAX_ERRORS = 0;
 
@@ -19,7 +19,7 @@ public abstract class GenericDao<T> {
   protected final String comment;
 
   public GenericDao() {
-    this(DEFAULT_SEAPRATOR, DEFAULT_COMMENT);
+    this(DEFAULT_SEPARATOR, DEFAULT_COMMENT);
   }
 
   /**
