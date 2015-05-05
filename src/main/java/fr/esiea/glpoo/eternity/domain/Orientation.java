@@ -15,12 +15,21 @@ public enum Orientation {
     return rotateClockwise(1);
   }
   
-  public Orientation rotateClockwise(Orientation orientation) {
+  /**
+   * Performs some sort of "product" of 2 orientations, so the SOUTH of SOUTH is NORTH. 
+   * @param orientation
+   * @return
+   */
+  public Orientation add(Orientation orientation) {
     return rotateClockwise(orientation.ordinal());
   }
 
+  public Orientation sub(Orientation orientation) {
+    return rotateClockwise(values().length-orientation.ordinal());
+  }
+
   public Orientation rotateClockwise(int times) {
-    Orientation[] values = values();
+    Orientation[] values = Orientation.values();
     int size = values.length;
     return values[(ordinal() + times) % size];
   }

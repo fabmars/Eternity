@@ -6,12 +6,13 @@ import static fr.esiea.glpoo.eternity.domain.Orientation.SOUTH;
 import static fr.esiea.glpoo.eternity.domain.Orientation.WEST;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
-public class Piece extends Item {
+public class Piece extends Item implements Iterable<Face> {
   
   private Face[] faces; //order: this of the Orientation enum elements
-  private Orientation orientation;
+  private Orientation orientation; //only this property is altered in case of rotation
   
   
   /**
@@ -19,7 +20,9 @@ public class Piece extends Item {
    * @param p
    */
   public Piece(Piece p) {
-    this(p.getId(), p.getNorth(), p.getWest(), p.getSouth(), p.getEast());
+    super(p.getId());
+    this.faces = Arrays.copyOf(p.faces, p.faces.length);
+    this.orientation = p.orientation;
   }
 
   /**
@@ -29,64 +32,104 @@ public class Piece extends Item {
    * @param westFace
    * @param southFace
    * @param eastFace
+   * @param orientation
    */
-  public Piece(int id, Face northFace, Face westFace, Face southFace, Face eastFace) {
+  public Piece(int id, Face northFace, Face eastFace, Face southFace, Face westFace, Orientation orientation) {
     super(id);
     faces = new Face[]{Objects.requireNonNull(northFace),
-                       Objects.requireNonNull(westFace),
+                       Objects.requireNonNull(eastFace),
                        Objects.requireNonNull(southFace),
-                       Objects.requireNonNull(eastFace)};
+                       Objects.requireNonNull(westFace)};
+    this.orientation = Objects.requireNonNull(orientation);
   }
 
-  public Face getNorth() {
-    return faces[Orientation.NORTH.ordinal()];
+
+  /**
+   * ctor
+   * @param id
+   * @param northFace
+   * @param westFace
+   * @param southFace
+   * @param eastFace
+   */
+  public Piece(int id, Face northFace, Face eastFace, Face southFace, Face westFace) {
+    this(id, northFace, eastFace, southFace, westFace, Orientation.NORTH);
   }
+
   
-  public Face getWest() {
-    return faces[Orientation.WEST.ordinal()];
-  }
-  
-  public Face getSouth() {
-    return faces[Orientation.SOUTH.ordinal()];
-  }
-  
-  public Face getEast() {
-    return faces[Orientation.EAST.ordinal()];
+  @Override
+  public Iterator<Face> iterator() {
+    return new FaceIterator(this);
   }
   
   /**
-   * @return Caution, returns itself after rotation!
+   * This gives the face, taking the piece's orientation into account
    */
-  public synchronized Piece rotateClockwise() {
-    Face northFace = faces[Orientation.NORTH.ordinal()];
-    faces[NORTH.ordinal()] = faces[Orientation.WEST.ordinal()];
-    faces[WEST.ordinal()] = faces[Orientation.SOUTH.ordinal()];
-    faces[SOUTH.ordinal()] = faces[Orientation.EAST.ordinal()];
-    faces[EAST.ordinal()] = northFace;
-    
-    orientation = orientation.nextClockwise();
-    
+  public Face getFace(Orientation orientation) {
+    return getFaceAbsolute(orientation.sub(this.orientation)); //in this order ! 
+  }
+
+  private Face getFaceAbsolute(Orientation orientation) {
+    return faces[orientation.ordinal()];
+  }
+  
+  public Face getNorth() {
+    return getFace(NORTH);
+  }
+  
+  public Face getEast() {
+    return getFace(EAST);
+  }
+
+  public Face getSouth() {
+    return getFace(SOUTH);
+  }
+
+  public Face getWest() {
+    return getFace(WEST);
+  }
+
+
+  public Orientation getOrientation() {
+    return orientation;
+  }
+
+  public void setOrientation(Orientation orientation) {
+    this.orientation = orientation;
+  }
+
+  /**
+   * @return itself after rotation, caution!
+   */
+  public Piece rotateClockwise() {
+    setOrientation(orientation.rotateClockwise());
     return this;
   }
   
   /**
-   * Choice not to compare the ids but directly the faces,
-   * taking into account the fact they may be rotated with one-another
+   * Taking into account the fact the two pieces may have different orientations
    */
   @Override
   public boolean equals(Object other) {
-    Piece otherCopy = new Piece((Piece)other); //copy, not to alter the original
+    Piece copy = new Piece(((Piece)other)); //this is a copy, we don't want to alter the original
     
-    for(int i = 0; i < 4; i++) {
-      if(Arrays.equals(faces, otherCopy.faces)) {
+    for(Orientation or : Orientation.values()) {
+      copy.setOrientation(or);
+
+      if(equalsOriented(copy)) {
         return true;
       }
-      else {
-        otherCopy.rotateClockwise();
+    }    
+    return false;
+  }
+
+  public boolean equalsOriented(Piece piece) {
+    for(Orientation or : Orientation.values()) {
+      if(!getFace(or).equals(piece.getFace(or))) {
+        return false;
       }
     }
-    
-    return false;
+    return true;
   }
 
   @Override

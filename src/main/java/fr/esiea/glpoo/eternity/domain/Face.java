@@ -10,13 +10,20 @@ public class Face extends Item {
   private Pattern pattern; //may be null for type EDGE
   private Color patternColor; //hence may be null too
   
-  
+
+  public Face(int id, Color backgroundColor, Pattern pattern, Color patternColor) {
+    this(id, FaceType.FACE, backgroundColor, pattern, patternColor);
+  }
+
   public Face(int id, FaceType type, Color backgroundColor, Pattern pattern, Color patternColor) {
     super( Objects.requireNonNull(id));
     this.type = Objects.requireNonNull(type);
+
     this.backgroundColor = Objects.requireNonNull(backgroundColor);
-    this.pattern = pattern;
-    this.patternColor = patternColor;
+    if(isFace()) {
+      this.pattern = pattern;
+      this.patternColor = patternColor;
+    }
   }
 
 
