@@ -64,6 +64,7 @@ public class PuzzleFrame extends JFrame {
     splitPane.setRightComponent(tableSource);
 
     Puzzle pDest = new Puzzle(4, 4);
+    //FIXME remove this
     for(int i = 0; i < 4; i++) {
       for(int j = 0; j < 4; j++) {
         Face f0 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.CROWN, Color.black);

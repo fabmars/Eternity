@@ -19,7 +19,7 @@ public class PieceDrawTest {
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setBounds(100, 100, 450, 450);
         
-    Face f0 = new Edge(0);
+    Face f0 = new Face(1, Color.green, Pattern.CROWN, Color.darkGray);
     Face f1 = new Face(1, Color.yellow, Pattern.LINES, Color.blue);
     Face f2 = new Face(2, Color.red, Pattern.TRIANGLE, Color.white);
     Face f3 = new Face(3, Color.blue, Pattern.ZIGZAG, Color.green);
