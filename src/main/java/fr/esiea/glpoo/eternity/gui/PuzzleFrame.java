@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 
 import fr.esiea.glpoo.eternity.domain.Face;
 import fr.esiea.glpoo.eternity.domain.FaceType;
+import fr.esiea.glpoo.eternity.domain.Orientation;
 import fr.esiea.glpoo.eternity.domain.Pattern;
 import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
@@ -69,7 +70,7 @@ public class PuzzleFrame extends JFrame {
         Face f1 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.LINES, Color.black);
         Face f2 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.TRIANGLE, Color.black);
         Face f3 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.ZIGZAG, Color.black);
-        Piece piece = new Piece(i*4+j, f0, f1, f2, f3);
+        Piece piece = new Piece(i*4+j, f0, f1, f2, f3, Orientation.NORTH);
         pDest.setPiece(piece, i, j);
       }
     }
