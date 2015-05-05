@@ -15,7 +15,7 @@ public abstract class GenericDao<T> {
   public static final String DEFAULT_COMMENT = "#";
   public static final int DEFAULT_MAX_ERRORS = 0;
 
-  protected final String seaprator;
+  protected final String separator;
   protected final String comment;
 
   public GenericDao() {
@@ -23,16 +23,16 @@ public abstract class GenericDao<T> {
   }
 
   /**
-   * @param seaprator as a regexp
+   * @param sepaarator as a regexp
    * @param comment as a string
    */
-  public GenericDao(String seaprator, String comment) {
-    this.seaprator = seaprator;
+  public GenericDao(String sepaarator, String comment) {
+    this.separator = sepaarator;
     this.comment = comment;
   }
 
-  public final String getSeaprator() {
-    return seaprator;
+  public final String getSeparator() {
+    return separator;
   }
 
   public final String getComment() {
@@ -80,7 +80,7 @@ public abstract class GenericDao<T> {
   }
 
   public T parseLine(String line) throws CsvException {
-    String[] parts = line.split(seaprator);
+    String[] parts = line.split(separator);
     return parseLine(parts);
   }
   
