@@ -28,7 +28,7 @@ public class PieceDao extends GenericDao<Piece> {
     Face southFace = faceStore.get(idSouth);
     Face westFace = faceStore.get(idWest);
     
-    Piece piece = new Piece(id, northFace, westFace, southFace, eastFace); //and no orientation, yet.
+    Piece piece = new Piece(id, northFace, eastFace, southFace, westFace);
     return piece;
   }
 
