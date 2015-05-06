@@ -9,12 +9,11 @@ import fr.esiea.glpoo.eternity.domain.Pattern;
 
 public class FaceDao extends GenericDao<Face> {
 
-  private ItemStore<Face> faceStore;
-  private FrenchColorAdapter colorAdapter;
+  private final ItemStore<Face> faceStore;
+  private final static FrenchColorAdapter colorAdapter = new FrenchColorAdapter();
   
   public FaceDao(ItemStore<Face> faceStore) {
     this.faceStore = faceStore;
-    this.colorAdapter = new FrenchColorAdapter();
   }
 
   @Override

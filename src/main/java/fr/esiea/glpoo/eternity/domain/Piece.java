@@ -20,9 +20,13 @@ public class Piece extends Item implements Iterable<Face> {
    * @param p
    */
   public Piece(Piece p) {
+    this(p, p.orientation);
+  }
+
+  public Piece(Piece p, Orientation orientation) {
     super(p.getId());
     this.faces = Arrays.copyOf(p.faces, p.faces.length);
-    this.orientation = p.orientation;
+    this.orientation = orientation;
   }
 
   /**

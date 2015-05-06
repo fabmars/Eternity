@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 /**
  * @param <T> is the entity type to load
@@ -13,22 +14,26 @@ public abstract class GenericDao<T> {
 
   public static final String DEFAULT_SEPARATOR = ";";
   public static final String DEFAULT_COMMENT = "#";
+  public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
   public static final int DEFAULT_MAX_ERRORS = 0;
 
   protected final String separator;
   protected final String comment;
+  protected final Charset charset;
 
+  
   public GenericDao() {
-    this(DEFAULT_SEPARATOR, DEFAULT_COMMENT);
+    this(DEFAULT_SEPARATOR, DEFAULT_COMMENT, DEFAULT_CHARSET);
   }
 
   /**
    * @param sepaarator as a regexp
    * @param comment as a string
    */
-  public GenericDao(String sepaarator, String comment) {
+  public GenericDao(String sepaarator, String comment, Charset charset) {
     this.separator = sepaarator;
     this.comment = comment;
+    this.charset = charset;
   }
 
   public final String getSeparator() {
@@ -49,7 +54,7 @@ public abstract class GenericDao<T> {
   }
 
   public final CsvParseReport parse(InputStream is, int maxErrors) throws IOException {
-    try(InputStreamReader reader = new InputStreamReader(is)) {
+    try(InputStreamReader reader = new InputStreamReader(is, charset)) {
       return parse(reader, maxErrors);
     }
   }
@@ -58,7 +63,7 @@ public abstract class GenericDao<T> {
     return parse(reader, 0);
   }
 
-  public final CsvParseReport parse(Reader reader, int maxErrors) throws IOException {
+  public CsvParseReport parse(Reader reader, int maxErrors) throws IOException {
     CsvParseReport result = new CsvParseReport(maxErrors);
     try(BufferedReader br = new BufferedReader(reader)) {
       String line = null;
@@ -79,7 +84,7 @@ public abstract class GenericDao<T> {
     return result;
   }
 
-  public T parseLine(String line) throws CsvException {
+  public final T parseLine(String line) throws CsvException {
     String[] parts = line.split(separator);
     return parseLine(parts);
   }

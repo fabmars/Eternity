@@ -6,8 +6,8 @@ import fr.esiea.glpoo.eternity.domain.Piece;
 
 public class PieceDao extends GenericDao<Piece> {
 
-  private ItemStore<Face> faceStore;
-  private ItemStore<Piece> store = new ItemStore<Piece>();
+  private final ItemStore<Face> faceStore;
+  private final ItemStore<Piece> store = new ItemStore<Piece>();
   
 
   public PieceDao(ItemStore<Face> faceStore) {
