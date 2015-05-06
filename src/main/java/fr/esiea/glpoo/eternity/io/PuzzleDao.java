@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.esiea.glpoo.eternity.domain.EternityException;
 import fr.esiea.glpoo.eternity.domain.Face;
 import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Orientation;
@@ -28,22 +27,26 @@ public class PuzzleDao extends GenericDao<Piece> {
   private ItemStore<Piece> pieceStore;
   
   
-  public Puzzle getPuzzle() {
-    return puzzle;
+  public PuzzleDao(Path stateFile) {
+    this.stateFile = stateFile;
   }
+
   
   /**
-   * For an existing game to load
-   * @param stateFile
-   * @return
+   * @return an existing game, loaded
    * @throws IOException
-   * @throws CsvException 
-   * @throws EternityException 
    */
-  public CsvParseReport parse(Path stateFile) throws IOException, CsvException, EternityException {
-    this.stateFile = stateFile;
+  public CsvParseReport parse() throws IOException {
+    return parse(0);
+  }
+
+  /**
+   * @return an existing game, loaded
+   * @throws IOException
+   */
+  public CsvParseReport parse(int maxErrors) throws IOException {
     try(BufferedReader br = Files.newBufferedReader(stateFile, charset)) {
-      return parse(br);
+      return parse(br, maxErrors);
     }
   }
   
@@ -170,5 +173,9 @@ public class PuzzleDao extends GenericDao<Piece> {
       factors.add(n);
     }
     return factors;
+  }
+  
+  public Puzzle getPuzzle() {
+    return puzzle;
   }
 }
