@@ -8,6 +8,7 @@ import fr.esiea.glpoo.eternity.domain.ItemStore;
  * Can't be an AdapterCsv, we need to ba able to fetch from the ItemStore<Face>,
  * and I wouldn't use a singleton
  */
+@Deprecated
 public class FaceAdapter implements Adapter<Face> {
 
   private ItemStore<Face> faceStore;
