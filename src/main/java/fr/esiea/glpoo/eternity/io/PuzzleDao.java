@@ -58,7 +58,7 @@ public class PuzzleDao extends GenericDao<Piece> {
 
     try(BufferedReader br = new BufferedReader(reader)) {
       String line;
-      while((line = br.readLine()) != null && (facesFile == null || piecesFile == null)) {
+      while((line = br.readLine()) != null) {
         if(!isComment(line)) {
           if(line.startsWith(PREFIX_PIECES)) {
             if(piecesFile == null) {
@@ -81,6 +81,10 @@ public class PuzzleDao extends GenericDao<Piece> {
           else {
             //ERROR unknown line type
           }
+        }
+        
+        if(facesFile != null && piecesFile != null) {
+          break;
         }
       }
       
