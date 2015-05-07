@@ -11,18 +11,32 @@ public class PuzzleTableModel extends AbstractTableModel {
   
   private Puzzle puzzle;
 
+  public PuzzleTableModel() {
+    //nothing
+  }
+
   public PuzzleTableModel(Puzzle puzzle) {
+    setPuzzle(puzzle);
+  }
+  
+  
+  public Puzzle getPuzzle() {
+    return puzzle;
+  }
+  
+  public void setPuzzle(Puzzle puzzle) {
     this.puzzle = puzzle;
   }
   
+  
   @Override
   public int getRowCount() {
-    return puzzle.getRows();
+    return (puzzle != null) ? puzzle.getRows() : 0;
   }
 
   @Override
   public int getColumnCount() {
-    return puzzle.getCols();
+    return (puzzle != null) ? puzzle.getCols() : 0;
   }
 
   @Override

@@ -10,6 +10,10 @@ public class PuzzleTable extends JTable {
 
   private static final long serialVersionUID = 1L;
 
+  public PuzzleTable() {
+    this( new PuzzleTableModel());
+  }
+
   public PuzzleTable(Puzzle puzzle) {
     this( new PuzzleTableModel(puzzle));
   }
