@@ -40,8 +40,8 @@ public class JPiece extends Container {
   
   @Override
   public void paint(Graphics g) {
-    int width = getWidth();
-    int height = getHeight();
+    int width = Math.min(getWidth(), getHeight()); //trying to make square cells
+    int height = width;
     Point center = new Point((width+1)/2, (height+1)/2);
 
     //BufferedImage pImage = new BufferedImage(width, height, getScreenImageType());
@@ -51,7 +51,7 @@ public class JPiece extends Container {
     pGraph.translate(center.x, center.y); //defining new origin at the center of the piece
     pGraph.rotate(Math.PI); //would also work using an AffineTransform rotated by 2 quadrants around center
 
-    Dimension fDim = new Dimension(width, center.y);
+    Dimension fDim = new Dimension(width, height-center.x);
     for(Component jFace : getComponents()) {
       jFace.setSize(fDim);
       //creating temp working image with same image type as the screen's
