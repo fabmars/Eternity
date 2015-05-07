@@ -7,6 +7,7 @@ import javax.swing.DropMode;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
 import fr.esiea.glpoo.eternity.domain.Puzzle;
@@ -74,8 +75,10 @@ public class PuzzleFrame extends JFrame {
 
   public void setPuzzles(Puzzle pSource, Puzzle pDest) {
     tmSource.setPuzzle(pSource);
+    tmSource.fireTableStructureChanged();
+    
     tmDest.setPuzzle(pDest);
-    pack();
+    tmDest.fireTableStructureChanged();
   }
   
   public Puzzle getPuzzleSource() {
