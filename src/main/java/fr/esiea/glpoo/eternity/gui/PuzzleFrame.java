@@ -5,6 +5,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -81,6 +85,7 @@ public class PuzzleFrame extends JFrame {
     getContentPane().setLayout(new GridBagLayout());
     tmDest = new PuzzleTableModel();
     PuzzleTable tableDest = new PuzzleTable(tmDest);
+    tableDest.addComponentListener(new PuzzleResizeAdapter(tableDest));
     getContentPane().add(tableDest, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     JPanel rightPane = new JPanel();
     getContentPane().add(rightPane, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
@@ -102,6 +107,7 @@ public class PuzzleFrame extends JFrame {
     
     tmSource = new PuzzleTableModel();
     PuzzleTable tableSource = new PuzzleTable(tmSource);
+    tableSource.addComponentListener(new PuzzleResizeAdapter(tableSource));
     rightPane.add(tableSource, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.8, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
     //Drag'n'drop
@@ -114,14 +120,14 @@ public class PuzzleFrame extends JFrame {
     tableDest.setDragEnabled(true);
     tableDest.setTransferHandler(transferHandler);
     tableDest.setDropMode(DropMode.ON);
+    
   }
-
   
   
   public void setPuzzles(Puzzle pSource, Puzzle pDest) {
     tmSource.setPuzzle(pSource);
     tmSource.fireTableStructureChanged();
-    
+
     tmDest.setPuzzle(pDest);
     tmDest.fireTableStructureChanged();
   }

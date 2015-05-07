@@ -52,15 +52,18 @@ public class JPiece extends Container {
     pGraph.rotate(Math.PI); //would also work using an AffineTransform rotated by 2 quadrants around center
 
     Dimension fDim = new Dimension(width, height-center.x);
-    for(Component jFace : getComponents()) {
-      jFace.setSize(fDim);
-      //creating temp working image with same image type as the screen's
-      BufferedImage faceImage = ImageUtils.createBufferedImage(COLOR_MODEL_RGBA, fDim); //we want it with Alpha so the quadrants' "empty" parts don't overlap on their neighbors
-      jFace.paint(faceImage.createGraphics());
-      pGraph.drawImage(faceImage, -center.x, 0, this);
-
-      pGraph.rotate(Math.PI/2.0); //would also work using an AffineTransform rotated by 1 quadrant around center
+    if(fDim.width > 0 && fDim.height > 0) {
+      for(Component jFace : getComponents()) {
+        jFace.setSize(fDim);
+        //creating temp working image with same image type as the screen's
+        BufferedImage faceImage = ImageUtils.createBufferedImage(COLOR_MODEL_RGBA, fDim); //we want it with Alpha so the quadrants' "empty" parts don't overlap on their neighbors
+        jFace.paint(faceImage.createGraphics());
+        pGraph.drawImage(faceImage, -center.x, 0, this);
+    
+        pGraph.rotate(Math.PI/2.0); //would also work using an AffineTransform rotated by 1 quadrant around center
+      }
     }
+    //else, no need to paint anything
     
     //g.drawImage(pImage, 0, 0, this);
   }
