@@ -1,7 +1,6 @@
 package fr.esiea.glpoo.eternity.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.DropMode;
@@ -10,11 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
-import fr.esiea.glpoo.eternity.domain.Face;
-import fr.esiea.glpoo.eternity.domain.FaceType;
-import fr.esiea.glpoo.eternity.domain.Orientation;
-import fr.esiea.glpoo.eternity.domain.Pattern;
-import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
 
 public class PuzzleFrame extends JFrame {
@@ -22,8 +16,8 @@ public class PuzzleFrame extends JFrame {
   private static final long serialVersionUID = 1L;
 
   private JPanel contentPane;
-  private PuzzleTable tableDest;
-  private PuzzleTable tableSource;
+  private PuzzleTableModel tmSource;
+  private PuzzleTableModel tmDest;
 
   /**
    * Launch the application.
@@ -59,25 +53,12 @@ public class PuzzleFrame extends JFrame {
     contentPane.add(splitPane, BorderLayout.CENTER);
     
 
-    Puzzle pSource = new Puzzle(4, 4);
-    tableSource = new PuzzleTable(pSource);
+    tmSource = new PuzzleTableModel();
+    PuzzleTable tableSource = new PuzzleTable(tmSource);
     splitPane.setRightComponent(tableSource);
-
-    Puzzle pDest = new Puzzle(4, 4);
-    //FIXME remove this
-    for(int i = 0; i < 4; i++) {
-      for(int j = 0; j < 4; j++) {
-        Face f0 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.CROWN, Color.black);
-        Face f1 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.LINES, Color.black);
-        Face f2 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.TRIANGLE, Color.black);
-        Face f3 = new Face(0, FaceType.values()[(int)(Math.random() * 2)], Color.white, Pattern.ZIGZAG, Color.black);
-        Piece piece = new Piece(i*4+j, f0, f1, f2, f3, Orientation.NORTH);
-        pDest.setPiece(piece, i, j);
-      }
-    }
-    tableDest = new PuzzleTable(pDest);
+    tmDest = new PuzzleTableModel();
+    PuzzleTable tableDest = new PuzzleTable(tmDest);
     splitPane.setLeftComponent(tableDest);
-
     
     PieceTransferHandler transferHandler = new PieceTransferHandler();
 
@@ -89,7 +70,19 @@ public class PuzzleFrame extends JFrame {
     tableDest.setDragEnabled(true);
     tableDest.setTransferHandler(transferHandler);
     tableDest.setDropMode(DropMode.ON);
-    
   }
 
+  public void setPuzzles(Puzzle pSource, Puzzle pDest) {
+    tmSource.setPuzzle(pSource);
+    tmDest.setPuzzle(pDest);
+    pack();
+  }
+  
+  public Puzzle getPuzzleSource() {
+    return tmSource.getPuzzle();
+  }
+  
+  public Puzzle getPuzleDest() {
+    return tmDest.getPuzzle();
+  }
 }
