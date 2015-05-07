@@ -22,9 +22,9 @@ public class ItemStore<T extends Item> implements Iterable<T> {
 
   public T get(int id) {
     T result = null;
-    for(T face : items) {
-      if(face.getId() == id) {
-        result = face;
+    for(T item : items) {
+      if(item.getId() == id) {
+        result = item;
         break;
       }
     }
@@ -52,8 +52,7 @@ public class ItemStore<T extends Item> implements Iterable<T> {
     boolean result = true;
     
     int count = items.size();
-    @SuppressWarnings("unchecked")
-    T[] array = (T[])items.toArray();
+    Object[] array = items.toArray();
     
     for(int i = 0; i < count; i++) {
       for(int j = i+1; j < count; j++) {
