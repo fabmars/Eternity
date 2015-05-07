@@ -60,8 +60,8 @@ public class Face extends Item {
     Face face = (Face)obj;
     return type.equals(face.type)
         && backgroundColor.equals(face.backgroundColor)
-        && pattern.equals(face.pattern)
-        && patternColor.equals(face.patternColor);
+        && Objects.equals(pattern, face.pattern)
+        && Objects.equals(patternColor, face.patternColor);
   }
 
   @Override
