@@ -23,9 +23,12 @@ public class FaceDao extends GenericDao<Face> {
       FaceType type = FaceType.getByCode(parts[i++].trim());
       int id = Integer.parseInt(parts[i++].trim());
       Color backColor =  colorAdapter.getAsObject(parts[i++].trim());
-      Pattern pattern = Pattern.getByCode(parts[i++].trim());
-      Color patternColor =  colorAdapter.getAsObject(parts[i++].trim());
-      
+      Pattern pattern = null;
+      Color patternColor = null;
+      if(type == FaceType.FACE) {
+        pattern = Pattern.getByCode(parts[i++].trim());
+        patternColor =  colorAdapter.getAsObject(parts[i++].trim());
+      }      
       return new Face(id, type, backColor, pattern, patternColor);
     }
     catch(EnumConstantNotPresentException e) {
