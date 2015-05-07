@@ -98,7 +98,7 @@ public class PuzzleDao extends GenericDao<Piece> {
         int size = pieceStore.size();
         //FIXME List<Integer> factor = primeFactors(pieceCount);
         puzzle = new Puzzle(4, 4);
-        return super.parse(reader, maxErrors);
+        return super.parse(br, maxErrors);
       }
     }
     return result;
