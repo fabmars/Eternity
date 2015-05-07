@@ -45,7 +45,8 @@ public abstract class GenericDao<T> {
   }
   
   public final boolean isComment(String line) {
-    return line.trim().startsWith(comment);
+    line = line.trim();
+    return line.length() == 0 || line.startsWith(comment);
   }
   
 
