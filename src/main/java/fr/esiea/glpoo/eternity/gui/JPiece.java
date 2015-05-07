@@ -21,9 +21,11 @@ public class JPiece extends Container {
   private static final long serialVersionUID = 1L;
 
   public JPiece(Piece piece) {
-    for(Face face : piece) {
-      JFace jface = JFaceFactory.create(face);
-      add(jface);
+    if(piece != null) {
+      for(Face face : piece) {
+        JFace jface = JFaceFactory.create(face);
+        add(jface);
+      }
     }
   }
 
