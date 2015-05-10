@@ -5,10 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -29,7 +25,6 @@ public class PuzzleFrame extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
-  //private JPanel contentPane;
   private PuzzleTableModel tmSource;
   private PuzzleTableModel tmDest;
 
@@ -85,10 +80,9 @@ public class PuzzleFrame extends JFrame {
     getContentPane().setLayout(new GridBagLayout());
     tmDest = new PuzzleTableModel();
     PuzzleTable tableDest = new PuzzleTable(tmDest);
-    tableDest.addComponentListener(new PuzzleResizeAdapter(tableDest));
-    getContentPane().add(tableDest, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+    getContentPane().add(tableDest, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     JPanel rightPane = new JPanel();
-    getContentPane().add(rightPane, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+    getContentPane().add(rightPane, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     
     rightPane.setLayout(new GridBagLayout());
     
@@ -97,17 +91,16 @@ public class PuzzleFrame extends JFrame {
     
     JPanel buttonsPane = new JPanel();
     buttonsPane.setLayout(new GridLayout(2, 2, 5, 5));
-    JButton rotateButton = new JButton("ROTATE");
+    JButton rotateButton = new JButton("Rotate");
     buttonsPane.add(rotateButton);
-    JButton restartButton = new JButton("RESTART");
+    JButton restartButton = new JButton("Restart");
     buttonsPane.add(restartButton);
-    JButton helpButton = new JButton("HELP");
+    JButton helpButton = new JButton("Help");
     buttonsPane.add(helpButton);
     rightPane.add(buttonsPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     
     tmSource = new PuzzleTableModel();
     PuzzleTable tableSource = new PuzzleTable(tmSource);
-    tableSource.addComponentListener(new PuzzleResizeAdapter(tableSource));
     rightPane.add(tableSource, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.8, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
     //Drag'n'drop
@@ -121,6 +114,7 @@ public class PuzzleFrame extends JFrame {
     tableDest.setTransferHandler(transferHandler);
     tableDest.setDropMode(DropMode.ON);
     
+    //addMouseListener(this);
   }
   
   

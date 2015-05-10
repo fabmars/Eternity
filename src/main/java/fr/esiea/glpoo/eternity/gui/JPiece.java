@@ -27,12 +27,10 @@ public class JPiece extends Container {
   private Piece piece;
   
   public JPiece(Piece piece) {
-    if(piece != null) {
-      this.piece = piece;
-      for(Face face : piece) {
-        JFace jface = JFaceFactory.create(face);
-        add(jface);
-      }
+    this.piece = piece;
+    for(Face face : piece) {
+      JFace jface = JFaceFactory.create(face);
+      add(jface);
     }
   }
 
@@ -41,7 +39,7 @@ public class JPiece extends Container {
    */
   @Override
   public void setPreferredSize(Dimension preferredSize) {
-    int min = Math.min(preferredSize.width, preferredSize.height);
+    int min = min(preferredSize.width, preferredSize.height);
     super.setPreferredSize(new Dimension(min, min));
   }
   
