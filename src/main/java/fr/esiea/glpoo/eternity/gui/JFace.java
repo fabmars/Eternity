@@ -1,5 +1,6 @@
 package fr.esiea.glpoo.eternity.gui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 
@@ -12,6 +13,7 @@ public abstract class JFace extends JComponent {
   private static final long serialVersionUID = 1L;
   
   protected final Face face;
+  
   
   protected JFace(Face face) {
     this.face = face;
@@ -47,5 +49,12 @@ public abstract class JFace extends JComponent {
     
     return triangle;
   }
+
+  protected float getStrokeWidth() {
+    return getWidth() / 30.f;
+  }
   
+  protected Color getStrokeColor() {
+    return Color.black;
+  }
 }

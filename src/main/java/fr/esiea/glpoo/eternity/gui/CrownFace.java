@@ -1,6 +1,8 @@
 package fr.esiea.glpoo.eternity.gui;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Polygon;
 
 import fr.esiea.glpoo.eternity.domain.Face;
@@ -16,7 +18,8 @@ public class CrownFace extends JFace {
   public void paintPattern(Graphics g) {
     int width = getWidth();
     int height = getHeight();
-
+    Graphics2D g2d = (Graphics2D)g;
+    
     int x1 = (5*width)/12;
     int x2 = width/3;
     int x4 = (width+1)/2;
@@ -34,6 +37,11 @@ public class CrownFace extends JFace {
     crown.addPoint(x5, h2);
     crown.addPoint(x6, h2);
     crown.addPoint(x5, height);
-    g.fillPolygon(crown);
+    g2d.fillPolygon(crown);
+
+    //stroke
+    g2d.setColor(getStrokeColor());
+    g2d.setStroke(new BasicStroke(getStrokeWidth()));
+    g2d.drawPolygon(crown);
   }
 }

@@ -1,7 +1,11 @@
 package fr.esiea.glpoo.eternity.gui;
 
 import static fr.esiea.glpoo.eternity.gui.ImageUtils.COLOR_MODEL_RGBA;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -20,8 +24,11 @@ public class JPiece extends Container {
 
   private static final long serialVersionUID = 1L;
 
+  private Piece piece;
+  
   public JPiece(Piece piece) {
     if(piece != null) {
+      this.piece = piece;
       for(Face face : piece) {
         JFace jface = JFaceFactory.create(face);
         add(jface);
@@ -46,21 +53,38 @@ public class JPiece extends Container {
 
     //BufferedImage pImage = new BufferedImage(width, height, getScreenImageType());
     //Graphics2D pGraph = pImage.createGraphics();
-    Graphics2D pGraph = (Graphics2D)g; //instead of creating yet another image above, we're assuming g is a G2D, which it is :)
+    Graphics2D pieceGraph = (Graphics2D)g; //instead of creating yet another image above, we're assuming g is a G2D, which it is :)
         
-    pGraph.translate(center.x, center.y); //defining new origin at the center of the piece
-    pGraph.rotate(Math.PI); //would also work using an AffineTransform rotated by 2 quadrants around center
+    pieceGraph.translate(center.x, center.y); //defining new origin at the center of the piece
+    pieceGraph.rotate(Math.PI); //would also work using an AffineTransform rotated by 2 quadrants around center
 
     Dimension fDim = new Dimension(width, height-center.x);
     if(fDim.width > 0 && fDim.height > 0) {
-      for(Component jFace : getComponents()) {
-        jFace.setSize(fDim);
-        //creating temp working image with same image type as the screen's
-        BufferedImage faceImage = ImageUtils.createBufferedImage(COLOR_MODEL_RGBA, fDim); //we want it with Alpha so the quadrants' "empty" parts don't overlap on their neighbors
-        jFace.paint(faceImage.createGraphics());
-        pGraph.drawImage(faceImage, -center.x, 0, this);
-    
-        pGraph.rotate(Math.PI/2.0); //would also work using an AffineTransform rotated by 1 quadrant around center
+      BufferedImage faceImage = ImageUtils.createBufferedImage(COLOR_MODEL_RGBA, fDim); //we want it with Alpha so the quadrants' "empty" parts don't overlap on their neighbors
+      Graphics2D faceGraph = faceImage.createGraphics();
+      
+      synchronized (getTreeLock()) {
+        for(Component jFace : getComponents()) {
+          jFace.setSize(fDim);
+          //creating temp working image with same image type as the screen's
+          jFace.paint(faceGraph);
+          
+          //apply face on piece
+          pieceGraph.drawImage(faceImage, -center.x, 0, this);
+      
+          //rotate piece
+          pieceGraph.rotate(Math.PI/2.0); //would also work using an AffineTransform rotated by 1 quadrant around center
+        }
+      }
+
+      if(piece != null) {
+        //strokes
+        pieceGraph.translate(-center.x,  -center.y);
+        pieceGraph.setColor(Color.darkGray);
+        float stroke = max(1.f, min(2.f, width/60.f));
+        pieceGraph.setStroke(new BasicStroke(stroke));
+        pieceGraph.drawLine(0, 0, width, height);
+        pieceGraph.drawLine(0, height, width, 0);
       }
     }
     //else, no need to paint anything

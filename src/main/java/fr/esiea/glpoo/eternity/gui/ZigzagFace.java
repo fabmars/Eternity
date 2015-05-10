@@ -1,6 +1,8 @@
 package fr.esiea.glpoo.eternity.gui;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Polygon;
 
 import fr.esiea.glpoo.eternity.domain.Face;
@@ -16,6 +18,7 @@ public class ZigzagFace extends JFace {
   public void paintPattern(Graphics g) {
     int width = getWidth();
     int height = getHeight();
+    Graphics2D g2d = (Graphics2D)g;
 
     int x1 = width/3;
     int x2 = (5*width)/12;
@@ -37,7 +40,11 @@ public class ZigzagFace extends JFace {
       zigzag.addPoint(x4, h);
       h += hstep;
     }
-    g.fillPolygon(zigzag);
+    g2d.fillPolygon(zigzag);
 
+    //stroke
+    g2d.setColor(getStrokeColor());
+    g2d.setStroke(new BasicStroke(getStrokeWidth()));
+    g2d.drawPolygon(zigzag);
   }
 }
