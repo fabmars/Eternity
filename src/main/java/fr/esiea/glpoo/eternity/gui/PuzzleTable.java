@@ -7,7 +7,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import javax.swing.JTable;
@@ -30,14 +29,11 @@ public class PuzzleTable extends JTable {
   
   public PuzzleTable(PuzzleTableModel tableModel) {
     super(tableModel);
-    setDefaultRenderer(Piece.class, new PieceCellRenderer());
-
     setBackground(Color.darkGray);
+    setDefaultRenderer(Piece.class, new PieceCellRenderer());
     
     addComponentListener(new PuzzleResizeAdapter(this));
-    
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    addMouseListener(new PuzzleMouseAdapter(this));
   }
   
   @Override
@@ -67,7 +63,7 @@ public class PuzzleTable extends JTable {
       g2d.setStroke(new BasicStroke(stroke));
 
       Rectangle r = getCellRect(row, col, false);
-      g2d.drawRect(r.x, r.y, r.width, r.height);
+      g2d.drawRect(r.x+1, r.y+1, r.width-(int)stroke, r.height-(int)stroke);
     }
   }
 }

@@ -88,8 +88,17 @@ public class PieceTransferHandler extends TransferHandler {
       PuzzleTableModel model = table.getModel();
       Object currentValue = model.getValueAt(row, col);
       if(currentValue == null) { //if there's currently no value on that cell
-        model.setValueAt(piece, row, col);
-        model.fireTableCellUpdated(row, col);
+        model.setValueAt(piece, row, col); //applying the piece into that cell
+        model.fireTableCellUpdated(row, col); //forcing redraw
+        
+        //getting the previously selected cell
+        int selectedRow = table.getSelectedRow();
+        int selectedCol = table.getSelectedColumn();
+        //making the dropped piece the selected one
+        table.changeSelection(row, col, false, false);
+        if(selectedRow >=0 && selectedCol >= 0) { //if some cell was previously selected, it has to be redrawn too
+          model.fireTableCellUpdated(selectedRow, selectedCol);
+        }
         return true;
       }
     }

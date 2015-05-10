@@ -92,6 +92,7 @@ public class PuzzleFrame extends JFrame {
     JPanel buttonsPane = new JPanel();
     buttonsPane.setLayout(new GridLayout(2, 2, 5, 5));
     JButton rotateButton = new JButton("Rotate");
+    rotateButton.addActionListener( new RotateActionListener(tableDest));
     buttonsPane.add(rotateButton);
     JButton restartButton = new JButton("Restart");
     buttonsPane.add(restartButton);
