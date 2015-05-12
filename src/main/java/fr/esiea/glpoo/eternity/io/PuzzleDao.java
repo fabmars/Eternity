@@ -15,138 +15,153 @@ import fr.esiea.glpoo.eternity.domain.Orientation;
 import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
 
-public class PuzzleDao extends GenericDao<Piece> {
+public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, Puzzle> {
 
   private static final String PREFIX_FACES = "Faces:";
   private static final String PREFIX_PIECES = "Pieces:";
   private final static OrientationAdapter oa = new OrientationAdapter();
 
-  private Path stateFile;
-  private Puzzle puzzle;
-  private ItemStore<Face> faceStore;
-  private ItemStore<Piece> pieceStore;
-  
-  
-  public PuzzleDao(Path stateFile) {
-    this.stateFile = stateFile;
-  }
-
   
   /**
    * @return an existing game, loaded
    * @throws IOException
    */
-  public CsvParseReport parse() throws IOException {
-    return parse(0);
+  public PuzzleParseReport parse(Path stateFile) throws IOException {
+    return parse(stateFile, 0);
   }
 
   /**
    * @return an existing game, loaded
    * @throws IOException
    */
-  public CsvParseReport parse(int maxErrors) throws IOException {
+  public PuzzleParseReport parse(Path stateFile, int maxErrors) throws IOException {
     try(BufferedReader br = Files.newBufferedReader(stateFile, charset)) {
-      return parse(br, maxErrors);
+      PuzzleParseContext context = new PuzzleParseContext(stateFile);
+      return parse(context, br, maxErrors);
     }
   }
   
   
   @Override
-  public CsvParseReport parse(Reader reader, int maxErrors) throws IOException {
-    CsvParseReport result = new CsvParseReport(maxErrors);
-    Path facesFile = null, piecesFile = null;
+  public PuzzleParseReport parse(PuzzleParseContext context, Reader reader, int maxErrors) throws IOException {
+    Path stateFile = context.getStateFile();
 
     try(BufferedReader br = new BufferedReader(reader)) {
       String line;
       while((line = br.readLine()) != null) {
         if(!isComment(line)) {
           if(line.startsWith(PREFIX_PIECES)) {
-            if(piecesFile == null) {
+            if(context.getPiecesFile() == null) {
               String piecesFileName = line.substring(PREFIX_PIECES.length()).trim();
-              piecesFile = stateFile.resolveSibling(piecesFileName);
+              Path piecesFile = stateFile.resolveSibling(piecesFileName);
+              context.setPiecesFile(piecesFile);
             }
             else {
-              //ERROR dupe pieces file
+              //FIXME ERROR dupe pieces file
             }
           }
           else if(line.startsWith(PREFIX_FACES)) {
-            if(facesFile == null) {
+            if(context.getFacesFile() == null) {
               String facesFileName = line.substring(PREFIX_FACES.length()).trim();
-              facesFile = stateFile.resolveSibling(facesFileName);
+              Path facesFile = stateFile.resolveSibling(facesFileName);
+              context.setFacesFile(facesFile);
             }
             else {
-              //ERROR dupe faces file
+              //FIXME ERROR dupe faces file
             }
           }
           else {
-            //ERROR unknown line type
+            //FIXME ERROR unknown line type
           }
         }
         
-        if(facesFile != null && piecesFile != null) {
+        if(context.getFacesFile() != null && context.getPiecesFile() != null) {
           break;
         }
       }
       
       //if we're reaching here, that means facesFile != null && piecesFile != null
-      faceStore = loadFaces(facesFile);
-      pieceStore = loadPieces(piecesFile, faceStore);
       
-      if(pieceStore.isEmpty()) {
-        result.addError(new CsvException("Empty pieces file: " + piecesFile));
-      }
-      else if(!pieceStore.isUnicity()) {
-        result.addError(new CsvException("Pieces are not unique: " + piecesFile));
-      }
-      else {
-        int size = pieceStore.size();
-        //FIXME List<Integer> factor = primeFactors(pieceCount);
-        puzzle = new Puzzle(4, 4);
-        return super.parse(br, maxErrors);
+      return parseState(context, br, maxErrors);
+    }
+  }
+
+  
+  private PuzzleParseReport parseState(PuzzleParseContext context, BufferedReader br, int maxErrors) throws IOException {
+    PuzzleParseReport finalReport = new PuzzleParseReport(maxErrors);
+
+    CsvParseReport<ItemStore<Face>> facesParseReport = loadFaces(context);
+    finalReport.addErrors(facesParseReport.getErrors());
+    if(!facesParseReport.isExceeded()){
+      ItemStore<Face> faceStore = facesParseReport.getOutcome();
+      context.setFaceStore(faceStore);
+      
+      CsvParseReport<ItemStore<Piece>> piecesParseReport = loadPieces(context);
+      finalReport.addErrors(piecesParseReport.getErrors());
+      if(!piecesParseReport.isExceeded()) {
+
+        Path piecesFile = context.getPiecesFile();
+        ItemStore<Piece> pieceStore = piecesParseReport.getOutcome();
+        context.setPieceStore(pieceStore);
+        
+        if(pieceStore.isEmpty()) {
+          finalReport.addError(new CsvException("Empty pieces file: " + piecesFile));
+        }
+        else if(!pieceStore.isUnicity()) {
+          finalReport.addError(new CsvException("Pieces are not unique: " + piecesFile));
+        }
+        else {
+          CsvParseReport<Puzzle> puzzleParseReport = super.parse(context, br, maxErrors);
+          finalReport.addErrors(puzzleParseReport.getErrors());
+          finalReport.setPieces(pieceStore);
+          finalReport.setOutcome(puzzleParseReport.getOutcome());
+        }
       }
     }
-    return result;
+    return finalReport;
   }
 
   //FIXME throw exception if 1
-  public ItemStore<Face> loadFaces(Path facesFile) throws IOException {
-    ItemStore<Face> fs = new ItemStore<Face>();
-    
-    try(BufferedReader br = Files.newBufferedReader(facesFile, charset)) {
-      new FaceDao(fs).parse(br);
+  public CsvParseReport<ItemStore<Face>> loadFaces(PuzzleParseContext context) throws IOException {
+    try(BufferedReader br = Files.newBufferedReader(context.getFacesFile(), charset)) {
+      return new FaceDao().parse(null, br);
     }
-    return fs;
   }
 
   //FIXME throw exception if 1
-  public ItemStore<Piece> loadPieces(Path piecesFile, ItemStore<Face> fs) throws IOException {
-    PieceDao pieceDao = new PieceDao(fs);
-    try(BufferedReader br = Files.newBufferedReader(piecesFile, charset)) {
-      pieceDao.parse(br);
+  public CsvParseReport<ItemStore<Piece>> loadPieces(PuzzleParseContext context) throws IOException {
+    try(BufferedReader br = Files.newBufferedReader(context.getPiecesFile(), charset)) {
+      return new PieceDao().parse(context.getFaceStore(), br);
     }
-    return pieceDao.getPieces();
   }
   
   
   @Override
-  public Piece parseLine(String[] parts) throws CsvException {
+  public PieceCoordinates parseLine(PuzzleParseContext context, String[] parts) throws CsvException {
     int i = 1; //skipping first P
     int id = Integer.parseInt(parts[i++].trim());
     int x = Integer.parseInt(parts[i++]) - 1; //1-based
     int y = Integer.parseInt(parts[i++]) - 1; //1-based
     Orientation orientation = oa.getAsObject(parts[i++]);
     
+    ItemStore<Piece> pieceStore = context.getPieceStore();
     Piece piece = new Piece(pieceStore.get(id), orientation); //copying because I want to keep the piece store as a reference, and/or there might be several players using it at the same time
-    puzzle.setPiece(piece, y, x); //doing "insert" here because I need {x,y}
-    return piece;
-  }
-
-  @Override
-  public void insert(Piece piece) {
-    //nothing, already done in parseLine
+    return new PieceCoordinates(piece, x, y);
   }
 
   
+  @Override
+  public Puzzle createOutcome(PuzzleParseContext context) {
+    int size = context.getPieceStore().size();
+    //FIXME List<Integer> factor = primeFactors(pieceCount);
+    return new Puzzle(4, 4);
+  }
+
+  @Override
+  public void insert(Puzzle puzzle, PieceCoordinates pieceCoords) {
+    puzzle.setPiece(pieceCoords.piece, pieceCoords.y, pieceCoords.x);
+  }
+
   public static Dimension getBestDimension(List<Integer> primes) {
     int count = primes.size();
     if(count == 0) {
@@ -178,8 +193,6 @@ public class PuzzleDao extends GenericDao<Piece> {
     }
     return factors;
   }
-  
-  public Puzzle getPuzzle() {
-    return puzzle;
-  }
 }
+
+

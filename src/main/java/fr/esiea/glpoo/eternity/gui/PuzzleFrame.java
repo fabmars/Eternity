@@ -7,19 +7,24 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import fr.esiea.glpoo.eternity.domain.ItemStore;
+import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
-import fr.esiea.glpoo.eternity.io.CsvParseReport;
 import fr.esiea.glpoo.eternity.io.PuzzleDao;
+import fr.esiea.glpoo.eternity.io.PuzzleParseReport;
 
 public class PuzzleFrame extends JFrame {
 
@@ -37,14 +42,16 @@ public class PuzzleFrame extends JFrame {
       public void run() {
         try {
           Path stateFile = Paths.get("D:/java/workspace/ESIEA/Eternity/src/main/resources/partie.csv");
-          PuzzleDao dao = new PuzzleDao(stateFile);
-          CsvParseReport report = dao.parse();
+          PuzzleDao dao = new PuzzleDao();
+          PuzzleParseReport report = dao.parse(stateFile);
           
           PuzzleFrame pf = new PuzzleFrame();
-          if(!report.isErrors()) {
-            Puzzle puzzle = dao.getPuzzle();
-            pf.setPuzzles(puzzle, new Puzzle(4, 4));
+          if(!report.isExceeded()) {
+            pf.setPuzzle(report.getOutcome(), report.getPieces());
             pf.setVisible(true);
+          }
+          else {
+            JOptionPane.showMessageDialog(null, "Too many errors loading statefile"); //FIXME detail
           }
         }
         catch (Exception e) {
@@ -105,21 +112,32 @@ public class PuzzleFrame extends JFrame {
     rightPane.add(tableSource, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.8, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
     //Drag'n'drop
-    PieceTransferHandler transferHandler = new PieceTransferHandler();
-
-    tableSource.setDragEnabled(true);
-    tableSource.setTransferHandler(transferHandler);
-    tableSource.setDropMode(DropMode.ON);
-
-    tableDest.setDragEnabled(true);
-    tableDest.setTransferHandler(transferHandler);
-    tableDest.setDropMode(DropMode.ON);
-    
-    //addMouseListener(this);
+    new PieceTransferHandler(tableSource, tableDest);
   }
   
-  
-  public void setPuzzles(Puzzle pSource, Puzzle pDest) {
+
+  public void setPuzzle(Puzzle pDest, Collection<Piece> allPieces) {
+    //first make sure the pieces store contains all the elements of the puzzle
+    if(!allPieces.containsAll(pDest)) {
+      throw new IllegalArgumentException("Puzzle and Piece store don't match");
+    }
+    
+    //then extracting the pieces that aren't yet on the puzzle board
+    List<Piece> remainingPieces = new ArrayList<>(pDest.getRows() * pDest.getCols());
+    for(Piece piece : allPieces) {
+      if(!pDest.contains(piece)) {
+        remainingPieces.add(piece);
+      }
+    }
+    while(remainingPieces.size() < pDest.size()) {
+      remainingPieces.add(null);
+    }
+    
+    Puzzle pSource = new Puzzle(pDest.getRows(), pDest.getCols(), remainingPieces);
+    setPuzzles(pSource, pDest);
+  }
+
+  private void setPuzzles(Puzzle pSource, Puzzle pDest) {
     tmSource.setPuzzle(pSource);
     tmSource.fireTableStructureChanged();
 

@@ -8,9 +8,9 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 /**
- * @param <T> is the entity type to load
+ * @param <I> is the entity type to load
  */
-public abstract class GenericDao<T> {
+public abstract class GenericDao<I, C, O> {
 
   public static final String DEFAULT_SEPARATOR = ";";
   public static final String DEFAULT_COMMENT = "#";
@@ -50,46 +50,49 @@ public abstract class GenericDao<T> {
   }
   
 
-  public final CsvParseReport parse(InputStream is) throws IOException {
-    return parse(is, DEFAULT_MAX_ERRORS);
+  public final CsvParseReport<O> parse(C context, InputStream is) throws IOException {
+    return parse(context, is, DEFAULT_MAX_ERRORS);
   }
 
-  public final CsvParseReport parse(InputStream is, int maxErrors) throws IOException {
+  public final CsvParseReport<O> parse(C context, InputStream is, int maxErrors) throws IOException {
     try(InputStreamReader reader = new InputStreamReader(is, charset)) {
-      return parse(reader, maxErrors);
+      return parse(context, reader, maxErrors);
     }
   }
 
-  public final CsvParseReport parse(Reader reader) throws IOException {
-    return parse(reader, 0);
+  public final CsvParseReport<O> parse(C context, Reader reader) throws IOException {
+    return parse(context, reader, 0);
   }
 
-  public CsvParseReport parse(Reader reader, int maxErrors) throws IOException {
-    CsvParseReport result = new CsvParseReport(maxErrors);
+  public CsvParseReport<O> parse(C context, Reader reader, int maxErrors) throws IOException {
+    CsvParseReport<O> report = new CsvParseReport<>(maxErrors);
+    O outcome = createOutcome(context);
     try(BufferedReader br = new BufferedReader(reader)) {
       String line = null;
       while((line = br.readLine()) != null) {
         if(!isComment(line)) {
           try {
-            T entity = parseLine(line);
-            insert(entity);
+            I entity = parseLine(context, line);
+            insert(outcome, entity);
           }
           catch(CsvException e) {
-            if(result.addError(e)) {
+            if(report.addError(e)) {
               break;
             }
           }
         }
       }
     }
-    return result;
+    report.setOutcome(outcome);
+    return report;
   }
 
-  public final T parseLine(String line) throws CsvException {
+  public final I parseLine(C context, String line) throws CsvException {
     String[] parts = line.split(separator);
-    return parseLine(parts);
+    return parseLine(context, parts);
   }
   
-  public abstract T parseLine(String[] parts) throws CsvException;
-  public abstract void insert(T entity);
+  public abstract O createOutcome(C context);
+  public abstract I parseLine(C context, String[] parts) throws CsvException;
+  public abstract void insert(O outcome, I entity);
 }

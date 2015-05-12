@@ -1,48 +1,49 @@
 package fr.esiea.glpoo.eternity.domain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 
-public class Puzzle {
+public class Puzzle extends ItemStore<Piece> {
 
-  private int rows, cols;
-  private Piece[][] pieces;
+  private final int rows, cols;
   
   public Puzzle(int rows, int cols) {
-    this.rows = rows;
-    this.cols = cols;
-    pieces = new Piece[rows][cols];
+    this(rows, cols, Puzzle.<Piece>emptyList(rows*cols));
   }
   
   public Puzzle(int rows, int cols, Collection<Piece> pieces) {
-    this(rows, cols);
+    this.rows = rows;
+    this.cols = cols;
     setPieces(pieces);
   }
-
 
   public Puzzle(int rows, int cols, Piece[] pieces) {
     this(rows, cols, Arrays.asList(pieces));
   }
 
+  private static <T> List<T> emptyList(int size) {
+    List<T> list = new ArrayList<>(size);
+    for(int i = 0; i < size; i++) {
+      list.add(null);
+    }
+    return list;
+  }
   
   private void setPieces(Collection<Piece> pieces) {
     int piecesCount = pieces.size();
     if(piecesCount != rows*cols) {
-      throw new IllegalArgumentException("Bad pieces list size (" + piecesCount + ") for puzzle[" + rows + "][" + cols +"]");
+      throw new IllegalArgumentException("Bad pieces collection size (" + piecesCount + ") for puzzle[" + rows + "][" + cols +"]");
     }
     else {
-      Iterator<Piece> it = pieces.iterator();
-      for(int r = 0; r < rows; r++)  {
-        for(int c = 0; c < cols; c++) {
-          this.pieces[rows][cols] = it.next();
-        }
-      }
+      addAll(pieces);
     }
   }
   
   public Piece getPiece(int row, int col) {
-    return pieces[row][col];
+    int index = getIndex(row, col);
+    return items.get(index);
   }
 
   /**
@@ -51,7 +52,12 @@ public class Puzzle {
    * @param col
    */
   public void setPiece(Piece piece, int row, int col) {
-    pieces[row][col] = piece;
+    int index = getIndex(row, col);
+    items.set(index, piece);
+  }
+  
+  private int getIndex(int row, int col) {
+    return row * cols + col;
   }
   
   public int getRows() {

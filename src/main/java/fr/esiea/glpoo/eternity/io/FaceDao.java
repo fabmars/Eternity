@@ -7,17 +7,12 @@ import fr.esiea.glpoo.eternity.domain.FaceType;
 import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Pattern;
 
-public class FaceDao extends GenericDao<Face> {
+public class FaceDao extends GenericDao<Face, Void, ItemStore<Face>> {
 
-  private final ItemStore<Face> faceStore;
   private final static FrenchColorAdapter colorAdapter = new FrenchColorAdapter();
   
-  public FaceDao(ItemStore<Face> faceStore) {
-    this.faceStore = faceStore;
-  }
-
   @Override
-  public Face parseLine(String[] parts) throws CsvException {
+  public Face parseLine(Void context, String[] parts) throws CsvException {
     try {
       int i = 0;
       FaceType type = FaceType.getByCode(parts[i++].trim());
@@ -35,9 +30,14 @@ public class FaceDao extends GenericDao<Face> {
       throw new CsvException(e);
     }
   }
+  
+  @Override
+  public ItemStore<Face> createOutcome(Void context) {
+    return new ItemStore<>();
+  }
 
   @Override
-  public void insert(Face face) {
+  public void insert(ItemStore<Face> faceStore, Face face) {
     faceStore.add(face);
   }
 }

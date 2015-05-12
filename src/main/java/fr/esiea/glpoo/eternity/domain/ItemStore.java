@@ -1,28 +1,42 @@
 package fr.esiea.glpoo.eternity.domain;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 
-public class ItemStore<T extends Item> implements Iterable<T> {
+public class ItemStore<I extends Item> implements Collection<I> {
 
-  private List<T> items = new LinkedList<>();
+  protected final List<I> items = new LinkedList<>();
 
-  public void add(T item) {
-    if(item != null) {
-      items.add(item);
-    }
+  @Override
+  public boolean add(I item) {
+    return items.add(item);
+  }
+  
+  @Override
+  public boolean addAll(Collection<? extends I> c) {
+    return items.addAll(c);
   }
 
-  public boolean contains(T item) {
+
+  @Override
+  public boolean contains(Object item) {
     return items.contains(item);
   }
+  
+  @Override
+  public boolean containsAll(Collection<?> c) {
+    return items.containsAll(c);
+  }
 
-  public T get(int id) {
-    T result = null;
-    for(T item : items) {
+
+  public I get(int id) {
+    I result = null;
+    for(I item : items) {
       if(item.getId() == id) {
         result = item;
         break;
@@ -32,18 +46,20 @@ public class ItemStore<T extends Item> implements Iterable<T> {
   }
 
   @Override
-  public Iterator<T> iterator() {
+  public Iterator<I> iterator() {
     return Collections.unmodifiableList(items).iterator();
   }
 
-  public ListIterator<T> listIterator() {
+  public ListIterator<I> listIterator() {
     return Collections.unmodifiableList(items).listIterator();
   }
 
+  @Override
   public int size() {
     return items.size();
   }
 
+  @Override
   public boolean isEmpty() {
     return items.isEmpty();
   }
@@ -56,7 +72,7 @@ public class ItemStore<T extends Item> implements Iterable<T> {
     
     for(int i = 0; i < count; i++) {
       for(int j = i+1; j < count; j++) {
-        if(array[i].equals(array[j])) {
+        if(Objects.equals(array[i], array[j])) {
           result = false;
           break;
         }
@@ -69,8 +85,34 @@ public class ItemStore<T extends Item> implements Iterable<T> {
     Collections.shuffle(items);
   }
   
+  @Override
   @SuppressWarnings("unchecked")
-  public T[] toArray() {
-    return (T[])items.toArray();
+  public I[] toArray() {
+    return (I[])items.toArray();
+  }
+
+  @Override
+  public <T> T[] toArray(T[] a) {
+    return items.toArray(a);
+  }
+
+  @Override
+  public boolean remove(Object o) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean removeAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException();
   }
 }

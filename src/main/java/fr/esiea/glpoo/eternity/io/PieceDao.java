@@ -4,18 +4,15 @@ import fr.esiea.glpoo.eternity.domain.Face;
 import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Piece;
 
-public class PieceDao extends GenericDao<Piece> {
+public class PieceDao extends GenericDao<Piece, ItemStore<Face>, ItemStore<Piece>> {
 
-  private final ItemStore<Face> faceStore;
-  private final ItemStore<Piece> store = new ItemStore<Piece>();
-  
-
-  public PieceDao(ItemStore<Face> faceStore) {
-    this.faceStore = faceStore;
+  @Override
+  public ItemStore<Piece> createOutcome(ItemStore<Face> context) {
+    return new ItemStore<>();
   }
 
   @Override
-  public Piece parseLine(String[] parts) throws CsvException {
+  public Piece parseLine(ItemStore<Face> faceStore, String[] parts) throws CsvException {
     int i = 1; //skipping first P
     int id = Integer.parseInt(parts[i++].trim());
     int idNorth = Integer.parseInt(parts[i++]);
@@ -33,11 +30,7 @@ public class PieceDao extends GenericDao<Piece> {
   }
 
   @Override
-  public void insert(Piece piece) {
-    store.add(piece);
-  }
-
-  public ItemStore<Piece> getPieces() {
-    return store;
+  public void insert(ItemStore<Piece> outcome, Piece piece) {
+    outcome.add(piece);
   }
 }

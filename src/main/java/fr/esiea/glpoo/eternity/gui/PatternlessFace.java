@@ -14,6 +14,6 @@ public class PatternlessFace extends JFace {
 
   @Override
   public void paintPattern(Graphics g) {
-    //nothing!
+    //nothing, we're telling you it's pattern-less.
   }
 }

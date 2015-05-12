@@ -9,10 +9,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.swing.CellRendererPane;
+import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.TransferHandler;
 
 import fr.esiea.glpoo.eternity.domain.Piece;
@@ -23,6 +25,20 @@ public class PieceTransferHandler extends TransferHandler {
   private final static JPanel dummyPanel = new JPanel();
   private final static CellRendererPane crp = new CellRendererPane();
   
+
+  
+  public PieceTransferHandler(JTable tableSource, JTable tableDest) {
+    super();
+    
+    tableSource.setDragEnabled(true);
+    tableSource.setTransferHandler(this);
+    tableSource.setDropMode(DropMode.ON);
+
+    tableDest.setDragEnabled(true);
+    tableDest.setTransferHandler(this);
+    tableDest.setDropMode(DropMode.ON);
+  }
+
   @Override
   public int getSourceActions(JComponent comp) {
     /**
