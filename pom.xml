@@ -80,6 +80,19 @@
 				</configuration>
 			</plugin>
 
+			<!-- Executable jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>fr.esiea.glpoo.eternity.Launcher</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
 			<!-- Doc generee par Maven -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -93,6 +106,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-surefire-plugin.version}</version>
 			</plugin>
+
 		</plugins>
 	</build>
 
