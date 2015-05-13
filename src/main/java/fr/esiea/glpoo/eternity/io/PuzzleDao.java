@@ -2,10 +2,12 @@ package fr.esiea.glpoo.eternity.io;
 
 import java.awt.Dimension;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,7 +156,12 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
   public Puzzle createOutcome(PuzzleParseContext context) {
     int size = context.getPieceStore().size();
     //FIXME List<Integer> factor = primeFactors(pieceCount);
-    return new Puzzle(4, 4);
+    
+    Puzzle puzzle = new Puzzle(4, 4);
+    puzzle.setFacesFile(context.getFacesFile());
+    puzzle.setPiecesFile(context.getFacesFile());
+    puzzle.setStateFile(context.getStateFile());
+    return puzzle;
   }
 
   @Override
@@ -192,6 +199,41 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
       factors.add(n);
     }
     return factors;
+  }
+  
+  
+  public void save(Puzzle puzzle, Path stateFile) throws CsvException, IOException {
+    try(BufferedWriter bw = Files.newBufferedWriter(stateFile, charset, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+      bw.append("# Pieces: nom_fichier");
+      bw.newLine();
+      bw.append("# Faces: nom_fichier");
+      bw.newLine();
+      bw.append("# P id_piece position_X position_Y orientation(Nord/Est/Sud/Ouest)");
+      bw.newLine();
+      
+      
+      bw.append(PREFIX_FACES).append(" ").append(puzzle.getFacesFile().getFileName().toString()); //FIXME the faces file is supposed to be in the same folder as the state file
+      bw.newLine();
+
+      bw.append(PREFIX_PIECES).append(" ").append(puzzle.getPiecesFile().getFileName().toString()); //FIXME idem
+      bw.newLine();
+      
+      
+      int i = 0, cols = puzzle.getCols();
+      for(Piece piece : puzzle) {
+        if(piece != null) {
+          bw.append('P').append(' ')
+            .append(Integer.toString(piece.getId())).append(' ')
+            .append(Integer.toString(i%cols+1)).append(' ')
+            .append(Integer.toString(i/cols+1)).append(' ')
+            .append(oa.getAsString(piece.getOrientation()));
+          bw.newLine();
+        }        
+        i++;
+      }
+      
+      puzzle.setStateFile(stateFile);
+    }
   }
 }
 

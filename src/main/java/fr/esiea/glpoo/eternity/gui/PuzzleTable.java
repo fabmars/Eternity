@@ -11,6 +11,7 @@ import java.awt.Rectangle;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.TableModelEvent;
 
 import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
@@ -64,6 +65,27 @@ public class PuzzleTable extends JTable {
 
       Rectangle r = getCellRect(row, col, false);
       g2d.drawRect(r.x+1, r.y+1, r.width-(int)stroke, r.height-(int)stroke);
+    }
+  }
+  
+  
+  @Override
+  public void tableChanged(TableModelEvent e) {
+    super.tableChanged(e);
+    resetRowHeight();
+  }
+
+  public void resetRowHeight() {
+    PuzzleTableModel tm = getModel();
+    if(tm != null) {
+      Puzzle puzzle = tm.getPuzzle();
+      if(puzzle != null) {
+        Rectangle r = getBounds();
+        int side = Math.min(r.width/puzzle.getCols(), r.height/puzzle.getRows());
+        if(side >= 1) {
+          setRowHeight(side);
+        }
+      }
     }
   }
 }

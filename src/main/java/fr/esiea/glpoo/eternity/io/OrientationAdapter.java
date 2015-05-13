@@ -29,7 +29,7 @@ public class OrientationAdapter implements Adapter<Orientation> {
       return WEST;
       
       default:
-        throw new IllegalArgumentException(String.valueOf(s));
+        throw new CsvException(String.valueOf(s));
     }
   }
 
@@ -49,7 +49,7 @@ public class OrientationAdapter implements Adapter<Orientation> {
       return W;
       
     default:
-      throw new IllegalArgumentException(String.valueOf(object));
+      throw new CsvException(String.valueOf(object));
     }
   }
 }

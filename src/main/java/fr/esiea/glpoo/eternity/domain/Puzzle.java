@@ -1,5 +1,6 @@
 package fr.esiea.glpoo.eternity.domain;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +9,7 @@ import java.util.List;
 public class Puzzle extends ItemStore<Piece> {
 
   private final int rows, cols;
+  private Path facesFile, piecesFile, stateFile;
   
   public Puzzle(int rows, int cols) {
     this(rows, cols, Puzzle.<Piece>emptyList(rows*cols));
@@ -66,5 +68,29 @@ public class Puzzle extends ItemStore<Piece> {
 
   public int getCols() {
     return cols;
+  }
+
+  public Path getStateFile() {
+    return stateFile;
+  }
+
+  public void setStateFile(Path stateFile) {
+    this.stateFile = stateFile;
+  }
+
+  public Path getFacesFile() {
+    return facesFile;
+  }
+
+  public Path getPiecesFile() {
+    return piecesFile;
+  }
+
+  public void setFacesFile(Path facesFile) {
+    this.facesFile = facesFile;
+  }
+
+  public void setPiecesFile(Path piecesFile) {
+    this.piecesFile = piecesFile;
   }
 }

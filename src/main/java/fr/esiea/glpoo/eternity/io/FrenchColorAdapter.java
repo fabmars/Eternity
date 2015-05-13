@@ -31,20 +31,19 @@ public class FrenchColorAdapter implements Adapter<Color> {
       return color;
     }
     else {
-      throw new IllegalArgumentException("Unknown color: " + str);
+      throw new CsvException("Unknown color: " + str);
     }
   }
 
   
   @Override
   public String getAsString(Color color) throws CsvException {
-    String result = null;
     for(Map.Entry<String, Color> ce : colorMap.entrySet()) {
       if(Objects.equals(ce.getValue(), color)) {
-        result = ce.getKey();
-        break;
+        return ce.getKey();
       }
     }
-    return result;
+    //else...
+    throw new CsvException("Unmapped color: " + color.toString());
   }
 }

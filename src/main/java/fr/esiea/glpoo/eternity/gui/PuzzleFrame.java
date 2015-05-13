@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -17,10 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import fr.esiea.glpoo.eternity.domain.ItemStore;
 import fr.esiea.glpoo.eternity.domain.Piece;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
 import fr.esiea.glpoo.eternity.io.PuzzleDao;
@@ -36,27 +35,15 @@ public class PuzzleFrame extends JFrame {
   /**
    * Launch the application.
    */
+  @Deprecated
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
-        try {
-          Path stateFile = Paths.get("D:/java/workspace/ESIEA/Eternity/src/main/resources/partie.csv");
-          PuzzleDao dao = new PuzzleDao();
-          PuzzleParseReport report = dao.parse(stateFile);
-          
-          PuzzleFrame pf = new PuzzleFrame();
-          if(!report.isExceeded()) {
-            pf.setPuzzle(report.getOutcome(), report.getPieces());
-            pf.setVisible(true);
-          }
-          else {
-            JOptionPane.showMessageDialog(null, "Too many errors loading statefile"); //FIXME detail
-          }
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-        }
+        Path stateFile = Paths.get("D:/java/workspace/ESIEA/Eternity/src/main/resources/partie.csv");
+        PuzzleFrame pf = new PuzzleFrame();
+        pf.setVisible(true);
+        pf.openStateFile(stateFile);
       }
     });
   }
@@ -74,9 +61,11 @@ public class PuzzleFrame extends JFrame {
     JMenuItem menuFile = new JMenu("File");
     menuBar.add(menuFile);
     JMenuItem menuOpen = new JMenuItem("Open...");
+    menuOpen.addActionListener(new OpenStateFileListener(this));
     menuFile.add(menuOpen);
     //FIXME implement open
     JMenuItem menuSave = new JMenuItem("Save...");
+    menuSave.addActionListener(new SaveStateFileListener(this));
     menuFile.add(menuSave);
     //FICME implement save
     JMenuItem menuHelp = new JMenuItem("Help");
@@ -116,6 +105,29 @@ public class PuzzleFrame extends JFrame {
   }
   
 
+  public void openStateFile(Path stateFile) {
+    if(stateFile != null) {
+      try {
+        PuzzleDao dao = new PuzzleDao();
+        PuzzleParseReport report = dao.parse(stateFile);
+        
+        if(!report.isExceeded()) {
+          setPuzzle(report.getOutcome(), report.getPieces());
+        }
+        else {
+          DialogUtils.info("Too many errors loading statefile"); //FIXME detail
+        }
+      }
+      catch (IOException e) {
+        DialogUtils.info("Errors reading statefile"); //FIXME detail
+      }
+    }
+    else {
+      DialogUtils.info("No file selected");
+    }
+  }
+
+  
   public void setPuzzle(Puzzle pDest, Collection<Piece> allPieces) {
     //first make sure the pieces store contains all the elements of the puzzle
     if(!allPieces.containsAll(pDest)) {
