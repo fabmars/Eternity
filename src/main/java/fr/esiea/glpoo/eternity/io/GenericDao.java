@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 
 /**
  * @param <I> is the entity type to load
+ * @param <C> is the context variable type
+ * @param <O> is the outcome (overall loaded structure) type
  */
 public abstract class GenericDao<I, C, O> {
 
