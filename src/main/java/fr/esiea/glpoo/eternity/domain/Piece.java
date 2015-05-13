@@ -5,13 +5,13 @@ import static fr.esiea.glpoo.eternity.domain.Orientation.NORTH;
 import static fr.esiea.glpoo.eternity.domain.Orientation.SOUTH;
 import static fr.esiea.glpoo.eternity.domain.Orientation.WEST;
 
-import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Objects;
 
 public class Piece extends Item implements Iterable<Face> {
   
-  private Face[] faces; //order: this of the Orientation enum elements
+  private final Hashtable<Orientation, Face> faces = new Hashtable<>();
   private Orientation orientation; //only this property is altered in case of rotation
   
   
@@ -25,7 +25,9 @@ public class Piece extends Item implements Iterable<Face> {
 
   public Piece(Piece p, Orientation orientation) {
     super(p.getId());
-    this.faces = Arrays.copyOf(p.faces, p.faces.length);
+    for(Orientation or : Orientation.values()) {
+      faces.put(or, p.getFaceAbsolute(or));
+    }
     this.orientation = orientation;
   }
 
@@ -40,10 +42,10 @@ public class Piece extends Item implements Iterable<Face> {
    */
   public Piece(int id, Face northFace, Face eastFace, Face southFace, Face westFace, Orientation orientation) {
     super(id);
-    faces = new Face[]{Objects.requireNonNull(northFace),
-                       Objects.requireNonNull(eastFace),
-                       Objects.requireNonNull(southFace),
-                       Objects.requireNonNull(westFace)};
+    faces.put(Orientation.NORTH, Objects.requireNonNull(northFace));
+    faces.put(Orientation.EAST,  Objects.requireNonNull(eastFace));
+    faces.put(Orientation.SOUTH, Objects.requireNonNull(southFace));
+    faces.put(Orientation.WEST,  Objects.requireNonNull(westFace));
     this.orientation = Objects.requireNonNull(orientation);
   }
 
@@ -74,7 +76,7 @@ public class Piece extends Item implements Iterable<Face> {
   }
 
   private Face getFaceAbsolute(Orientation orientation) {
-    return faces[orientation.ordinal()];
+    return faces.get(orientation);
   }
   
   public Face getNorth() {
