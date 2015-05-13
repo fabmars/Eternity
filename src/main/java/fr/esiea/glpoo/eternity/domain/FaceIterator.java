@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 public class FaceIterator implements Iterator<Face> {
 
-  private Piece piece;
+  private final Piece piece;
   private int ordinal;
   
   public FaceIterator(Piece piece) {

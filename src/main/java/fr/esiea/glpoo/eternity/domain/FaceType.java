@@ -4,7 +4,7 @@ public enum FaceType {
   EDGE("B"),
   FACE("F");
   
-  private String code;
+  private final String code;
   
   private FaceType(String code) {
     this.code = code;

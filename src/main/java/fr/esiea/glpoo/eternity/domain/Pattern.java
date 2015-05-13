@@ -6,7 +6,7 @@ public enum Pattern {
   CROWN("couronne"),
   LINES("lignes");
   
-  private String code;
+  private final String code;
   
   private Pattern(String code) {
     this.code = code;

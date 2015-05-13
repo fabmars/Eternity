@@ -5,10 +5,10 @@ import java.util.Objects;
 
 public class Face extends Item {
 
-  private FaceType type;
-  private Color backgroundColor;
-  private Pattern pattern; //may be null for type EDGE
-  private Color patternColor; //hence may be null too
+  private final FaceType type;
+  private final Color backgroundColor;
+  private final Pattern pattern; //may be null for type EDGE
+  private final Color patternColor; //hence may be null too
   
 
   public Face(int id, Color backgroundColor, Pattern pattern, Color patternColor) {
@@ -23,6 +23,10 @@ public class Face extends Item {
     if(isFace()) {
       this.pattern = pattern;
       this.patternColor = patternColor;
+    }
+    else {
+      this.pattern = null;
+      this.patternColor = null;
     }
   }
 
