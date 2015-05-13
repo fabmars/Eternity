@@ -16,7 +16,7 @@ public enum FaceType {
 
   public static FaceType getByCode(String code) {
     for(FaceType type : values()) {
-      if(type.getCode().equalsIgnoreCase(code)) {
+      if(type.code.equalsIgnoreCase(code)) {
         return type;
       }
     }

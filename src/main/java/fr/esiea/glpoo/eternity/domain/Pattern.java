@@ -18,7 +18,7 @@ public enum Pattern {
   
   public static Pattern getByCode(String code) {
     for(Pattern pattern : values()) {
-      if(pattern.getCode().equalsIgnoreCase(code)) {
+      if(pattern.code.equalsIgnoreCase(code)) {
         return pattern;
       }
     }
