@@ -1,12 +1,11 @@
 package fr.esiea.glpoo.eternity.io;
 
-import fr.esiea.glpoo.eternity.domain.Piece;
-import fr.esiea.glpoo.eternity.domain.ItemStore;
+import fr.esiea.glpoo.eternity.domain.PieceStore;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
 
 public class PuzzleParseReport extends CsvParseReport<Puzzle> {
 
-  private ItemStore<Piece> pieces;
+  private PieceStore pieces;
 
   public PuzzleParseReport() {
     super();
@@ -16,11 +15,11 @@ public class PuzzleParseReport extends CsvParseReport<Puzzle> {
     super(errorLimit);
   }
 
-  public ItemStore<Piece> getPieces() {
+  public PieceStore getPieces() {
     return pieces;
   }
 
-  public void setPieces(ItemStore<Piece> pieces) {
+  public void setPieces(PieceStore pieces) {
     this.pieces = pieces;
   }
 }

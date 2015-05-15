@@ -11,11 +11,28 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class Puzzle extends ItemStore<Piece> {
+public class Puzzle extends PieceStore {
 
   private final int rows, cols;
   private URL facesFile, piecesFile, stateFile;
 
+  /**
+   * copy ctor, deep, not shallow
+   * @param puzzle
+   */
+  public Puzzle(Puzzle puzzle) {
+    this.rows = puzzle.rows;
+    this.cols = puzzle.cols;
+    
+    for(Piece piece : puzzle) {
+      add(piece != null ? new Piece(piece) : null);
+    }
+
+    this.facesFile = puzzle.facesFile;
+    this.piecesFile = puzzle.piecesFile;
+    this.stateFile = puzzle.stateFile;
+  }
+  
   public Puzzle(int rows, int cols) {
     this(rows, cols, Puzzle.<Piece> emptyList(rows * cols));
   }
@@ -76,6 +93,23 @@ public class Puzzle extends ItemStore<Piece> {
     return cols;
   }
 
+  
+  public URL getFacesFile() {
+    return facesFile;
+  }
+
+  public void setFacesFile(URL facesFile) {
+    this.facesFile = facesFile;
+  }
+  
+  public URL getPiecesFile() {
+    return piecesFile;
+  }
+
+  public void setPiecesFile(URL piecesFile) {
+    this.piecesFile = piecesFile;
+  }
+  
   public URL getStateFile() {
     return stateFile;
   }
@@ -84,22 +118,7 @@ public class Puzzle extends ItemStore<Piece> {
     this.stateFile = stateFile;
   }
 
-  public URL getFacesFile() {
-    return facesFile;
-  }
 
-  public URL getPiecesFile() {
-    return piecesFile;
-  }
-
-  public void setFacesFile(URL facesFile) {
-    this.facesFile = facesFile;
-  }
-
-  public void setPiecesFile(URL piecesFile) {
-    this.piecesFile = piecesFile;
-  }
-  
   public boolean isSolved() {
     //basic checks: if it ain't full, it ain't done :)
     for(Piece piece : this) {
@@ -123,12 +142,12 @@ public class Puzzle extends ItemStore<Piece> {
     
     for(int r = 0; r < rows-1; r++) {
       for(int c = 0; c < cols-1; c++) {
-        Piece p1 = getPiece(r, c);
-        Piece p2 = getPiece(r, c+1);
-        Piece p3 = getPiece(r+1, c);
+        Piece focus = getPiece(r, c);
+        Piece eastern = getPiece(r, c+1);
+        Piece southern = getPiece(r+1, c);
         
-        if(!p1.getFace(EAST).equals(p2.getFace(WEST))
-        || !p1.getFace(SOUTH).equals(p3.getFace(NORTH))) {
+        if(!focus.getFace(EAST).equals(eastern.getFace(WEST))
+        || !focus.getFace(SOUTH).equals(southern.getFace(NORTH))) {
           return false;
         }
       }

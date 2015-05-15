@@ -2,22 +2,27 @@ package fr.esiea.glpoo.eternity.io;
 
 import java.net.URL;
 
-import fr.esiea.glpoo.eternity.domain.Face;
-import fr.esiea.glpoo.eternity.domain.ItemStore;
-import fr.esiea.glpoo.eternity.domain.Piece;
+import fr.esiea.glpoo.eternity.domain.FaceStore;
+import fr.esiea.glpoo.eternity.domain.PieceStore;
 
 public class PuzzleParseContext {
 
   private final URL stateFile;
   
   private URL facesFile;
-  private ItemStore<Face> faceStore;
+  private FaceStore faceStore;
   
   private URL piecesFile;
-  private ItemStore<Piece> pieceStore;
+  private PieceStore pieceStore;
 
   public PuzzleParseContext(URL stateFile) {
     this.stateFile = stateFile;
+  }
+  
+  public PuzzleParseContext(URL facesFile, URL piecesFile) {
+    this(null);
+    setFacesFile(facesFile);
+    setPiecesFile(piecesFile);
   }
   
   public URL getStateFile() {
@@ -33,11 +38,11 @@ public class PuzzleParseContext {
     this.facesFile = faceFile;
   }
 
-  public ItemStore<Face> getFaceStore() {
+  public FaceStore getFaceStore() {
     return faceStore;
   }
 
-  protected void setFaceStore(ItemStore<Face> faceStore) {
+  protected void setFaceStore(FaceStore faceStore) {
     this.faceStore = faceStore;
   }
 
@@ -50,11 +55,11 @@ public class PuzzleParseContext {
     this.piecesFile = pieceFile;
   }
 
-  public ItemStore<Piece> getPieceStore() {
+  public PieceStore getPieceStore() {
     return pieceStore;
   }
 
-  protected void setPieceStore(ItemStore<Piece> pieceStore) {
+  protected void setPieceStore(PieceStore pieceStore) {
     this.pieceStore = pieceStore;
   }
 }

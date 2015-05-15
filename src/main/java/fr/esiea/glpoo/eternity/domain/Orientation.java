@@ -33,4 +33,9 @@ public enum Orientation {
     int size = values.length;
     return values[(ordinal() + times) % size];
   }
+  
+  public static Orientation random() {
+    int randIdx = (int)(Math.random() * 4.0);
+    return Orientation.values()[randIdx];
+  }
 }

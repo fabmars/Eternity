@@ -23,17 +23,20 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import fr.esiea.glpoo.eternity.domain.Piece;
+import fr.esiea.glpoo.eternity.domain.PieceStore;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
+import fr.esiea.glpoo.eternity.io.CsvParseReport;
 import fr.esiea.glpoo.eternity.io.PuzzleDao;
+import fr.esiea.glpoo.eternity.io.PuzzleParseContext;
 import fr.esiea.glpoo.eternity.io.PuzzleParseReport;
 
 public class PuzzleFrame extends JFrame implements SolutionHandler {
 
   private static final long serialVersionUID = 1L;
 
-  private PuzzleTableModel tmSource;
-  private PuzzleTableModel tmDest;
+  private RestartActionListener restartActionListener;
   
+  //components to be enabled/disabled when game is paused
   private PuzzleTable tableSource;
   private PuzzleTable tableDest;
   private JButton rotateButton;
@@ -57,7 +60,7 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
    */
   public PuzzleFrame() {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setBounds(100, 100, 450, 300);
+    setBounds(100, 100, 490, 350);
 
     // Menu bar
     JMenuBar menuBar = new JMenuBar();
@@ -78,7 +81,7 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
 
     // Content pane
     getContentPane().setLayout(new GridBagLayout());
-    tmDest = new PuzzleTableModel();
+    PuzzleTableModel tmDest = new PuzzleTableModel();
     tableDest = new PuzzleTable(tmDest);
     getContentPane().add(tableDest, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     JPanel rightPane = new JPanel();
@@ -89,11 +92,10 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
     JLabel timerLabel = new JLabel();
     timerLabel.setFont(timerLabel.getFont().deriveFont(25.f));
     rightPane.add(timerLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-    
+
     JPanel buttonsPane = new JPanel();
     buttonsPane.setLayout(new GridLayout(2, 2, 5, 5));
     rotateButton = new JButton("Rotate");
-    rotateButton.addActionListener(new RotateActionListener(tableDest, this));
     buttonsPane.add(rotateButton);
     JButton restartButton = new JButton("Restart");
     buttonsPane.add(restartButton);
@@ -101,10 +103,22 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
     buttonsPane.add(helpButton);
     rightPane.add(buttonsPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 
-    tmSource = new PuzzleTableModel();
+    PuzzleTableModel tmSource = new PuzzleTableModel();
     tableSource = new PuzzleTable(tmSource);
     rightPane.add(tableSource, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.8, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
+    
+    //rotate button
+    rotateButton.addActionListener(new RotateActionListener(tableDest, this));
+    
+    //restart button
+    restartActionListener = new RestartActionListener(tmSource, tmDest);
+    restartButton.addActionListener(restartActionListener);
+
+    //help button
+    helpButton.addActionListener(new HelpActionListener());
+    
+    
     // Drag'n'drop
     tableSource.setDragEnabled(true);
     tableSource.setTransferHandler(new PieceTransferHandler(null));
@@ -113,10 +127,10 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
     tableDest.setDragEnabled(true);
     tableDest.setTransferHandler(new PieceTransferHandler(this));
     tableDest.setDropMode(DropMode.ON);
-    
+
     timerThread = new TimerThread(timerLabel);
     timerThread.start();
-    
+
     setGameEnabled(false);
   }
 
@@ -124,7 +138,7 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
     try {
       openStateFile(stateFile.toUri().toURL());
     }
-    catch(MalformedURLException e) {
+    catch (MalformedURLException e) {
       DialogUtils.info("Can't handle file: " + stateFile.toString());
     }
   }
@@ -137,7 +151,7 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
 
         if (!report.isExceeded()) {
           Puzzle puzzle = report.getOutcome();
-          setPuzzle(puzzle, report.getPieces());
+          setPuzzle(report.getPieces(), puzzle);
           setGameEnabled(true);
           checkSolved(puzzle);
         }
@@ -154,10 +168,37 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
     }
   }
 
-  public void setPuzzle(Puzzle pDest, Collection<Piece> allPieces) {
+  public void randomState(URL facesFileUrl, URL piecesFileUrl) {
+    if (facesFileUrl != null && piecesFileUrl != null) {
+      try {
+        PuzzleDao dao = new PuzzleDao();
+        PuzzleParseContext context = new PuzzleParseContext(facesFileUrl, piecesFileUrl);
+        CsvParseReport<PieceStore> report = dao.parseFacesAndPieces(context, 0);
+
+        if (!report.isExceeded()) {
+          PieceStore pieceStore = report.getOutcome();
+          pieceStore.shuffle();
+          setPuzzle(pieceStore, dao.createOutcome(context));
+          setGameEnabled(true);
+        }
+        else {
+          DialogUtils.info("Too many errors loading statefile"); // FIXME detail
+        }
+      }
+      catch (IOException e) {
+        DialogUtils.info("Errors reading statefile"); // FIXME detail
+      }
+    }
+    else {
+      DialogUtils.info("No file selected");
+    }
+
+  }
+
+  protected void setPuzzle(Collection<Piece> allPieces, Puzzle pDest) {
     // first make sure the pieces store contains all the elements of the puzzle
-    for(Piece piece : pDest) { //Can't use Collection#containsAll() because there may be null pieces in pDest
-      if(piece != null && !allPieces.contains(piece)) {
+    for (Piece piece : pDest) { // Can't use Collection#containsAll() because there may be null pieces in pDest
+      if (piece != null && !allPieces.contains(piece)) {
         throw new IllegalArgumentException("Puzzle and Piece store don't match");
       }
     }
@@ -174,37 +215,31 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
     }
 
     Puzzle pSource = new Puzzle(pDest.getRows(), pDest.getCols(), remainingPieces);
-    setPuzzles(pSource, pDest);
-  }
 
-  private void setPuzzles(Puzzle pSource, Puzzle pDest) {
-    tmSource.setPuzzle(pSource);
-    tmSource.fireTableStructureChanged();
-
-    tmDest.setPuzzle(pDest);
-    tmDest.fireTableStructureChanged();
+    restartActionListener.setPuzzles(pSource, pDest);
+    restartActionListener.actionPerformed(null);
   }
 
   public Puzzle getPuzzleSource() {
-    return tmSource.getPuzzle();
+    return tableSource.getModel().getPuzzle();
   }
 
   public Puzzle getPuzleDest() {
-    return tmDest.getPuzzle();
+    return tableDest.getModel().getPuzzle();
   }
-  
+
   @Override
   public void checkSolved(Puzzle puzzle) {
-    if(puzzle.isSolved()) {
+    if (puzzle.isSolved()) {
       setGameEnabled(false);
       DialogUtils.info("PUZZLE SOLVED, WELL DONE!!!");
     }
   }
-  
+
   public void setGameEnabled(boolean enabled) {
     rotateButton.setEnabled(enabled);
     tableSource.setDragEnabled(enabled);
     tableDest.setDragEnabled(enabled);
-    timerThread.setPaused(enabled);
+    timerThread.setPaused(!enabled);
   }
 }

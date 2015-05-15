@@ -86,9 +86,8 @@ public class ItemStore<I extends Item> implements Collection<I> {
   }
   
   @Override
-  @SuppressWarnings("unchecked")
-  public I[] toArray() {
-    return (I[])items.toArray();
+  public Object[] toArray() {
+    return items.toArray();
   }
 
   @Override

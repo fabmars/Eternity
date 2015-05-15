@@ -4,24 +4,22 @@ import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.esiea.glpoo.eternity.domain.Face;
-import fr.esiea.glpoo.eternity.domain.ItemStore;
+import fr.esiea.glpoo.eternity.domain.FaceStore;
 import fr.esiea.glpoo.eternity.domain.Orientation;
 import fr.esiea.glpoo.eternity.domain.Piece;
+import fr.esiea.glpoo.eternity.domain.PieceStore;
 import fr.esiea.glpoo.eternity.domain.Puzzle;
 
+//TODO load/save elapsed time too
 public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, Puzzle> {
 
   private static final String PREFIX_FACES = "Faces:";
@@ -88,48 +86,57 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
 
   
   private PuzzleParseReport parseState(PuzzleParseContext context, BufferedReader br, int maxErrors) throws IOException {
-    PuzzleParseReport finalReport = new PuzzleParseReport(maxErrors);
+    PuzzleParseReport finalReport = new PuzzleParseReport();
+    CsvParseReport<PieceStore> facesAndPiecesReport = parseFacesAndPieces(context, maxErrors);
+    finalReport.addErrors(facesAndPiecesReport.getErrors());
+    
+    if(!facesAndPiecesReport.isExceeded()) {
+      CsvParseReport<Puzzle> puzzleParseReport = super.parse(context, br, maxErrors);
+      finalReport.addErrors(puzzleParseReport.getErrors());
+      finalReport.setPieces(facesAndPiecesReport.getOutcome());
+      finalReport.setOutcome(puzzleParseReport.getOutcome());
+    }
+    return finalReport;
+  }
 
-    CsvParseReport<ItemStore<Face>> facesParseReport = loadFaces(context);
+  
+  public CsvParseReport<PieceStore> parseFacesAndPieces(PuzzleParseContext context, int maxErrors) throws IOException {
+    CsvParseReport<PieceStore> finalReport = new CsvParseReport<>(maxErrors);
+
+    CsvParseReport<FaceStore> facesParseReport = loadFaces(context);
     finalReport.addErrors(facesParseReport.getErrors());
     if(!facesParseReport.isExceeded()){
-      ItemStore<Face> faceStore = facesParseReport.getOutcome();
+      FaceStore faceStore = facesParseReport.getOutcome();
       context.setFaceStore(faceStore);
       
-      CsvParseReport<ItemStore<Piece>> piecesParseReport = loadPieces(context);
+      CsvParseReport<PieceStore> piecesParseReport = loadPieces(context);
       finalReport.addErrors(piecesParseReport.getErrors());
       if(!piecesParseReport.isExceeded()) {
 
-        URL piecesFile = context.getPiecesFile();
-        ItemStore<Piece> pieceStore = piecesParseReport.getOutcome();
+        PieceStore pieceStore = piecesParseReport.getOutcome();
         context.setPieceStore(pieceStore);
         
         if(pieceStore.isEmpty()) {
-          finalReport.addError(new CsvException("Empty pieces file: " + piecesFile));
+          finalReport.addError(new CsvException("Empty pieces file: " + context.getPiecesFile()));
         }
         else if(!pieceStore.isUnicity()) {
-          finalReport.addError(new CsvException("Pieces are not unique: " + piecesFile));
+          finalReport.addError(new CsvException("Pieces are not unique: " + context.getPiecesFile()));
         }
         else {
-          CsvParseReport<Puzzle> puzzleParseReport = super.parse(context, br, maxErrors);
-          finalReport.addErrors(puzzleParseReport.getErrors());
-          finalReport.setPieces(pieceStore);
-          finalReport.setOutcome(puzzleParseReport.getOutcome());
+          finalReport.setOutcome(pieceStore);
         }
       }
     }
     return finalReport;
   }
 
-  //FIXME throw exception if 1
-  public CsvParseReport<ItemStore<Face>> loadFaces(PuzzleParseContext context) throws IOException {
+  public CsvParseReport<FaceStore> loadFaces(PuzzleParseContext context) throws IOException {
     try(InputStreamReader isr = new InputStreamReader(context.getFacesFile().openStream(), charset)) {
       return new FaceDao().parse(null, isr);
     }
   }
 
-  //FIXME throw exception if 1
-  public CsvParseReport<ItemStore<Piece>> loadPieces(PuzzleParseContext context) throws IOException {
+  public CsvParseReport<PieceStore> loadPieces(PuzzleParseContext context) throws IOException {
     try(InputStreamReader isr = new InputStreamReader(context.getPiecesFile().openStream(), charset)) {
       return new PieceDao().parse(context.getFaceStore(), isr);
     }
@@ -144,7 +151,7 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
     int y = Integer.parseInt(parts[i++]) - 1; //1-based
     Orientation orientation = oa.getAsObject(parts[i++]);
     
-    ItemStore<Piece> pieceStore = context.getPieceStore();
+    PieceStore pieceStore = context.getPieceStore();
     Piece piece = new Piece(pieceStore.get(id), orientation); //copying because I want to keep the piece store as a reference, and/or there might be several players using it at the same time
     return new PieceCoordinates(piece, x, y);
   }
@@ -154,8 +161,8 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
   public Puzzle createOutcome(PuzzleParseContext context) {
     int size = context.getPieceStore().size();
     //FIXME List<Integer> factor = primeFactors(pieceCount);
-    
     Puzzle puzzle = new Puzzle(4, 4);
+    
     puzzle.setFacesFile(context.getFacesFile());
     puzzle.setPiecesFile(context.getPiecesFile());
     puzzle.setStateFile(context.getStateFile());
