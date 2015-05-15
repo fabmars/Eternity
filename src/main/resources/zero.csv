@@ -1,0 +1,5 @@
+# Pieces: nom_fichier
+# Faces: nom_fichier
+# P id_piece position_X position_Y orientation(Nord/Est/Sud/Ouest)
+Pieces: pieces.csv
+Faces: faces.csv
