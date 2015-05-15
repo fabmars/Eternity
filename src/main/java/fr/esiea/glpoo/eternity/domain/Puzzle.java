@@ -1,5 +1,10 @@
 package fr.esiea.glpoo.eternity.domain;
 
+import static fr.esiea.glpoo.eternity.domain.Orientation.EAST;
+import static fr.esiea.glpoo.eternity.domain.Orientation.NORTH;
+import static fr.esiea.glpoo.eternity.domain.Orientation.SOUTH;
+import static fr.esiea.glpoo.eternity.domain.Orientation.WEST;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,5 +98,43 @@ public class Puzzle extends ItemStore<Piece> {
 
   public void setPiecesFile(URL piecesFile) {
     this.piecesFile = piecesFile;
+  }
+  
+  public boolean isSolved() {
+    //basic checks: if it ain't full, it ain't done :)
+    for(Piece piece : this) {
+      if(piece == null) {
+        return false;
+      }
+    }
+    
+    //edge check: NORTH/SOUTH
+    for(int c = 0; c < cols; c++) {
+      if(!getPiece(0, c).getFace(NORTH).isEdge() || !getPiece(rows-1, c).getFace(SOUTH).isEdge()) {
+        return false;
+      }
+    }
+    //edge check: EAST/WEST
+    for(int r = 0; r < rows; r++) {
+      if(!getPiece(r, 0).getFace(EAST).isEdge() || !getPiece(r, cols-1).getFace(WEST).isEdge()) {
+        return false;
+      }
+    }
+    
+    int r = 0, c = 0;
+    while(r < rows-1) {
+      while(c < cols-1) {
+        Piece p1 = getPiece(r, c);
+        Piece p2 = getPiece(r, c+1);
+        Piece p3 = getPiece(r+1, c);
+        
+        if(!p1.getFace(EAST).equals(p2.getFace(WEST))
+        || !p1.getFace(SOUTH).equals(p3.getFace(NORTH))) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
   }
 }
