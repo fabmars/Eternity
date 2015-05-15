@@ -28,7 +28,7 @@ public class TimerThread extends Thread {
       String sTime = getTimeAsString(timer.getElapsed());
       timerLabel.setText(sTime);
       //updateUI(); //no need
-      System.out.println("UPDATE " + timer.getElapsed());
+      //System.out.println("UPDATE " + timer.getElapsed());
   
       try {
         Thread.sleep(1000L);
