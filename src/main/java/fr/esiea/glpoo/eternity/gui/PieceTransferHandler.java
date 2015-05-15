@@ -9,12 +9,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.swing.CellRendererPane;
-import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.TransferHandler;
 
 import fr.esiea.glpoo.eternity.domain.Piece;
@@ -24,19 +22,12 @@ public class PieceTransferHandler extends TransferHandler {
   private static final long serialVersionUID = 1L;
   private final static JPanel dummyPanel = new JPanel();
   private final static CellRendererPane crp = new CellRendererPane();
+  private final SolutionHandler solutionHandler;
   
-
   
-  public PieceTransferHandler(JTable tableSource, JTable tableDest) {
+  public PieceTransferHandler(SolutionHandler solutionHandler) {
     super();
-    
-    tableSource.setDragEnabled(true);
-    tableSource.setTransferHandler(this);
-    tableSource.setDropMode(DropMode.ON);
-
-    tableDest.setDragEnabled(true);
-    tableDest.setTransferHandler(this);
-    tableDest.setDropMode(DropMode.ON);
+    this.solutionHandler = solutionHandler;
   }
 
   @Override
@@ -116,7 +107,9 @@ public class PieceTransferHandler extends TransferHandler {
           model.fireTableCellUpdated(selectedRow, selectedCol);
         }
         
-        table.checkSolved();
+        if(solutionHandler != null) {
+          solutionHandler.checkSolved(table.getModel().getPuzzle());
+        }
         return true;
       }
     }

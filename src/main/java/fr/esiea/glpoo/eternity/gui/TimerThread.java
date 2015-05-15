@@ -6,12 +6,15 @@ import java.util.TimeZone;
 
 import javax.swing.JLabel;
 
-public class JTimer extends JLabel implements Runnable {
-
-  private static final long serialVersionUID = 1L;
+public class TimerThread extends Thread {
 
   private final static SimpleDateFormat sdf;
   private final Timer timer = new Timer();
+  private final JLabel timerLabel;
+  
+  public TimerThread(JLabel timerLabel) {
+    this.timerLabel = timerLabel;
+  }
   
   static {
     sdf = new SimpleDateFormat("HH:mm:ss");
@@ -21,11 +24,11 @@ public class JTimer extends JLabel implements Runnable {
   
   @Override
   public void run() {
-    while(true) {
+    while(timer.isStarted()) {
       String sTime = getTimeAsString(timer.getElapsed());
-      setText(sTime);
+      timerLabel.setText(sTime);
       //updateUI(); //no need
-      System.out.println("UPDATE " + timer.getElapsed());
+      //System.out.println("UPDATE " + timer.getElapsed());
   
       try {
         Thread.sleep(1000L);
@@ -49,12 +52,14 @@ public class JTimer extends JLabel implements Runnable {
     return text;
   }
   
-  public void start() {
-    timer.start();
+  @Override
+  public synchronized void start() {
+    start(0L);
   }
 
-  public void start(long elapsed) {
+  public synchronized void start(long elapsed) {
     timer.start(elapsed);
+    super.start();
   }
   
   public boolean isStarted() {
@@ -65,7 +70,11 @@ public class JTimer extends JLabel implements Runnable {
     return timer.isPaused();
   }
 
-  public void stop() {
+  public void setPaused(boolean paused) {
+    timer.setPaused(paused);
+  }
+  
+  public void halt() {
     timer.stop();
   }
 }

@@ -89,10 +89,7 @@ public class PuzzleTable extends JTable {
     }
   }
   
-  
-  public void checkSolved() {
-    if(getModel().getPuzzle().isSolved()) {
-      DialogUtils.info("PUZZLE SOLVED, WELL DONE!!!");
-    }
+  public boolean isSolved() {
+    return getModel().isSolved();
   }
 }

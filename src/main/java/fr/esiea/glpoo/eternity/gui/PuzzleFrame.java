@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -25,14 +27,17 @@ import fr.esiea.glpoo.eternity.domain.Puzzle;
 import fr.esiea.glpoo.eternity.io.PuzzleDao;
 import fr.esiea.glpoo.eternity.io.PuzzleParseReport;
 
-public class PuzzleFrame extends JFrame {
+public class PuzzleFrame extends JFrame implements SolutionHandler {
 
   private static final long serialVersionUID = 1L;
 
   private PuzzleTableModel tmSource;
   private PuzzleTableModel tmDest;
-  private JTimer timerPane;
-
+  
+  private PuzzleTable tableSource;
+  private PuzzleTable tableDest;
+  private JButton rotateButton;
+  private TimerThread timerThread;
 
   @Deprecated
   public static void main(String[] args) {
@@ -74,20 +79,20 @@ public class PuzzleFrame extends JFrame {
     // Content pane
     getContentPane().setLayout(new GridBagLayout());
     tmDest = new PuzzleTableModel();
-    PuzzleTable tableDest = new PuzzleTable(tmDest);
+    tableDest = new PuzzleTable(tmDest);
     getContentPane().add(tableDest, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     JPanel rightPane = new JPanel();
     getContentPane().add(rightPane, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
     rightPane.setLayout(new GridBagLayout());
 
-    timerPane = new JTimer();
-    rightPane.add(timerPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+    JLabel timerLabel = new JLabel();
+    rightPane.add(timerLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     
     JPanel buttonsPane = new JPanel();
     buttonsPane.setLayout(new GridLayout(2, 2, 5, 5));
-    JButton rotateButton = new JButton("Rotate");
-    rotateButton.addActionListener(new RotateActionListener(tableDest));
+    rotateButton = new JButton("Rotate");
+    rotateButton.addActionListener(new RotateActionListener(tableDest, this));
     buttonsPane.add(rotateButton);
     JButton restartButton = new JButton("Restart");
     buttonsPane.add(restartButton);
@@ -96,14 +101,22 @@ public class PuzzleFrame extends JFrame {
     rightPane.add(buttonsPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 
     tmSource = new PuzzleTableModel();
-    PuzzleTable tableSource = new PuzzleTable(tmSource);
+    tableSource = new PuzzleTable(tmSource);
     rightPane.add(tableSource, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.8, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
     // Drag'n'drop
-    new PieceTransferHandler(tableSource, tableDest);
+    tableSource.setDragEnabled(true);
+    tableSource.setTransferHandler(new PieceTransferHandler(null));
+    tableSource.setDropMode(DropMode.ON);
+
+    tableDest.setDragEnabled(true);
+    tableDest.setTransferHandler(new PieceTransferHandler(this));
+    tableDest.setDropMode(DropMode.ON);
     
-    new Thread(timerPane).start();
-    //timerPane.start();
+    timerThread = new TimerThread(timerLabel);
+    timerThread.start();
+    
+    setGameEnabled(false);
   }
 
   public void openStateFile(Path stateFile) {
@@ -122,7 +135,10 @@ public class PuzzleFrame extends JFrame {
         PuzzleParseReport report = dao.parse(stateFileUrl);
 
         if (!report.isExceeded()) {
-          setPuzzle(report.getOutcome(), report.getPieces());
+          Puzzle puzzle = report.getOutcome();
+          setPuzzle(puzzle, report.getPieces());
+          setGameEnabled(true);
+          checkSolved(puzzle);
         }
         else {
           DialogUtils.info("Too many errors loading statefile"); // FIXME detail
@@ -174,5 +190,20 @@ public class PuzzleFrame extends JFrame {
 
   public Puzzle getPuzleDest() {
     return tmDest.getPuzzle();
+  }
+  
+  @Override
+  public void checkSolved(Puzzle puzzle) {
+    if(puzzle.isSolved()) {
+      DialogUtils.info("PUZZLE SOLVED, WELL DONE!!!");
+      setGameEnabled(false);
+    }
+  }
+  
+  public void setGameEnabled(boolean enabled) {
+    rotateButton.setEnabled(enabled);
+    tableSource.setDragEnabled(enabled);
+    tableDest.setDragEnabled(enabled);
+    timerThread.setPaused(enabled);
   }
 }

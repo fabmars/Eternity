@@ -59,4 +59,8 @@ public class PuzzleTableModel extends AbstractTableModel {
     puzzle.setPiece(null, row, col);
     fireTableCellUpdated(row, col);
   }
+  
+  public boolean isSolved() {
+    return puzzle.isSolved();
+  }
 }

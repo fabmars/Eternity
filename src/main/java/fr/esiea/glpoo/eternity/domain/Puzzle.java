@@ -116,7 +116,7 @@ public class Puzzle extends ItemStore<Piece> {
     }
     //edge check: EAST/WEST
     for(int r = 0; r < rows; r++) {
-      if(!getPiece(r, 0).getFace(EAST).isEdge() || !getPiece(r, cols-1).getFace(WEST).isEdge()) {
+      if(!getPiece(r, 0).getFace(WEST).isEdge() || !getPiece(r, cols-1).getFace(EAST).isEdge()) {
         return false;
       }
     }

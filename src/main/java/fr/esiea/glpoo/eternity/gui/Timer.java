@@ -18,7 +18,7 @@ public class Timer {
       started = true;
     }
     else if (isPaused()) {
-      pause(false);
+      setPaused(false);
     }
   }
 
@@ -27,10 +27,10 @@ public class Timer {
   }
 
   public synchronized void pause() {
-    pause(true);
+    setPaused(true);
   }
 
-  public synchronized void pause(boolean pause) {
+  public synchronized void setPaused(boolean pause) {
     if (started) {
       if (pause) {
         if (!isPaused()) {
