@@ -6,8 +6,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,10 +41,10 @@ public class PuzzleFrame extends JFrame {
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
-        Path stateFile = Paths.get("D:/java/workspace/ESIEA/Eternity/src/main/resources/partie.csv");
+        URL stateFile = getClass().getResource("/solution.csv");
         PuzzleFrame pf = new PuzzleFrame();
-        pf.setVisible(true);
         pf.openStateFile(stateFile);
+        pf.setVisible(true);
       }
     });
   }
@@ -54,8 +55,8 @@ public class PuzzleFrame extends JFrame {
   public PuzzleFrame() {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setBounds(100, 100, 450, 300);
-    
-    //Menu bar
+
+    // Menu bar
     JMenuBar menuBar = new JMenuBar();
     setJMenuBar(menuBar);
     JMenuItem menuFile = new JMenu("File");
@@ -63,63 +64,71 @@ public class PuzzleFrame extends JFrame {
     JMenuItem menuOpen = new JMenuItem("Open...");
     menuOpen.addActionListener(new OpenStateFileListener(this));
     menuFile.add(menuOpen);
-    //FIXME implement open
+    // FIXME implement open
     JMenuItem menuSave = new JMenuItem("Save...");
     menuSave.addActionListener(new SaveStateFileListener(this));
     menuFile.add(menuSave);
-    //FICME implement save
+    // FICME implement save
     JMenuItem menuHelp = new JMenuItem("Help");
     menuHelp.addActionListener(new HelpActionListener());
     menuBar.add(menuHelp);
-    
-    //Content pane
+
+    // Content pane
     getContentPane().setLayout(new GridBagLayout());
     tmDest = new PuzzleTableModel();
     PuzzleTable tableDest = new PuzzleTable(tmDest);
     getContentPane().add(tableDest, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     JPanel rightPane = new JPanel();
     getContentPane().add(rightPane, new GridBagConstraints(1, 0, 1, 1, 0.0, 1.0, GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    
+
     rightPane.setLayout(new GridBagLayout());
-    
+
     JLabel timerPane = new JLabel("TIMER");
     rightPane.add(timerPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-    
+
     JPanel buttonsPane = new JPanel();
     buttonsPane.setLayout(new GridLayout(2, 2, 5, 5));
     JButton rotateButton = new JButton("Rotate");
-    rotateButton.addActionListener( new RotateActionListener(tableDest));
+    rotateButton.addActionListener(new RotateActionListener(tableDest));
     buttonsPane.add(rotateButton);
     JButton restartButton = new JButton("Restart");
     buttonsPane.add(restartButton);
     JButton helpButton = new JButton("Help");
     buttonsPane.add(helpButton);
     rightPane.add(buttonsPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-    
+
     tmSource = new PuzzleTableModel();
     PuzzleTable tableSource = new PuzzleTable(tmSource);
     rightPane.add(tableSource, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.8, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
-    //Drag'n'drop
+    // Drag'n'drop
     new PieceTransferHandler(tableSource, tableDest);
   }
-  
 
   public void openStateFile(Path stateFile) {
-    if(stateFile != null) {
+    try {
+      openStateFile(stateFile.toUri().toURL());
+    }
+    catch(MalformedURLException e) {
+      DialogUtils.info("Can't handle file: " + stateFile.toString());
+    }
+  }
+
+  public void openStateFile(URL stateFileUrl) {
+    if (stateFileUrl != null) {
       try {
         PuzzleDao dao = new PuzzleDao();
-        PuzzleParseReport report = dao.parse(stateFile);
-        
-        if(!report.isExceeded()) {
+        PuzzleParseReport report = dao.parse(stateFileUrl);
+
+        if (!report.isExceeded()) {
           setPuzzle(report.getOutcome(), report.getPieces());
         }
         else {
-          DialogUtils.info("Too many errors loading statefile"); //FIXME detail
+          DialogUtils.info("Too many errors loading statefile"); // FIXME detail
         }
       }
       catch (IOException e) {
-        DialogUtils.info("Errors reading statefile"); //FIXME detail
+        DialogUtils.info("Errors reading statefile"); // FIXME detail
       }
     }
     else {
@@ -127,24 +136,25 @@ public class PuzzleFrame extends JFrame {
     }
   }
 
-  
   public void setPuzzle(Puzzle pDest, Collection<Piece> allPieces) {
-    //first make sure the pieces store contains all the elements of the puzzle
-    if(!allPieces.containsAll(pDest)) {
-      throw new IllegalArgumentException("Puzzle and Piece store don't match");
+    // first make sure the pieces store contains all the elements of the puzzle
+    for(Piece piece : pDest) { //Can't use Collection#containsAll() because there may be null pieces in pDest
+      if(piece != null && !allPieces.contains(piece)) {
+        throw new IllegalArgumentException("Puzzle and Piece store don't match");
+      }
     }
-    
-    //then extracting the pieces that aren't yet on the puzzle board
+
+    // then extracting the pieces that aren't yet on the puzzle board
     List<Piece> remainingPieces = new ArrayList<>(pDest.getRows() * pDest.getCols());
-    for(Piece piece : allPieces) {
-      if(!pDest.contains(piece)) {
+    for (Piece piece : allPieces) {
+      if (!pDest.contains(piece)) {
         remainingPieces.add(piece);
       }
     }
-    while(remainingPieces.size() < pDest.size()) {
+    while (remainingPieces.size() < pDest.size()) {
       remainingPieces.add(null);
     }
-    
+
     Puzzle pSource = new Puzzle(pDest.getRows(), pDest.getCols(), remainingPieces);
     setPuzzles(pSource, pDest);
   }
@@ -156,11 +166,11 @@ public class PuzzleFrame extends JFrame {
     tmDest.setPuzzle(pDest);
     tmDest.fireTableStructureChanged();
   }
-  
+
   public Puzzle getPuzzleSource() {
     return tmSource.getPuzzle();
   }
-  
+
   public Puzzle getPuzleDest() {
     return tmDest.getPuzzle();
   }

@@ -1,6 +1,6 @@
 package fr.esiea.glpoo.eternity.io;
 
-import java.nio.file.Path;
+import java.net.URL;
 
 import fr.esiea.glpoo.eternity.domain.Face;
 import fr.esiea.glpoo.eternity.domain.ItemStore;
@@ -8,28 +8,28 @@ import fr.esiea.glpoo.eternity.domain.Piece;
 
 public class PuzzleParseContext {
 
-  private final Path stateFile;
+  private final URL stateFile;
   
-  private Path facesFile;
+  private URL facesFile;
   private ItemStore<Face> faceStore;
   
-  private Path piecesFile;
+  private URL piecesFile;
   private ItemStore<Piece> pieceStore;
 
-  public PuzzleParseContext(Path stateFile) {
+  public PuzzleParseContext(URL stateFile) {
     this.stateFile = stateFile;
   }
   
-  public Path getStateFile() {
+  public URL getStateFile() {
     return stateFile;
   }
 
   
-  public Path getFacesFile() {
+  public URL getFacesFile() {
     return facesFile;
   }
 
-  protected void setFacesFile(Path faceFile) {
+  protected void setFacesFile(URL faceFile) {
     this.facesFile = faceFile;
   }
 
@@ -42,11 +42,11 @@ public class PuzzleParseContext {
   }
 
   
-  public Path getPiecesFile() {
+  public URL getPiecesFile() {
     return piecesFile;
   }
 
-  protected void setPiecesFile(Path pieceFile) {
+  protected void setPiecesFile(URL pieceFile) {
     this.piecesFile = pieceFile;
   }
 

@@ -117,15 +117,17 @@ public class Piece extends Item implements Iterable<Face> {
    */
   @Override
   public boolean equals(Object other) {
-    Piece copy = new Piece(((Piece)other)); //this is a copy, we don't want to alter the original
-    
-    for(Orientation or : Orientation.values()) {
-      copy.setOrientation(or);
-
-      if(equalsOriented(copy)) {
-        return true;
+    if(other != null) {
+      Piece copy = new Piece(((Piece)other)); //this is a copy, we don't want to alter the original
+      
+      for(Orientation or : Orientation.values()) {
+        copy.setOrientation(or);
+  
+        if(equalsOriented(copy)) {
+          return true;
+        }
       }
-    }    
+    }
     return false;
   }
 

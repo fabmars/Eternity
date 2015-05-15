@@ -1,6 +1,6 @@
 package fr.esiea.glpoo.eternity.domain;
 
-import java.nio.file.Path;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,12 +9,12 @@ import java.util.List;
 public class Puzzle extends ItemStore<Piece> {
 
   private final int rows, cols;
-  private Path facesFile, piecesFile, stateFile;
-  
+  private URL facesFile, piecesFile, stateFile;
+
   public Puzzle(int rows, int cols) {
-    this(rows, cols, Puzzle.<Piece>emptyList(rows*cols));
+    this(rows, cols, Puzzle.<Piece> emptyList(rows * cols));
   }
-  
+
   public Puzzle(int rows, int cols, Collection<Piece> pieces) {
     this.rows = rows;
     this.cols = cols;
@@ -27,29 +27,30 @@ public class Puzzle extends ItemStore<Piece> {
 
   private static <T> List<T> emptyList(int size) {
     List<T> list = new ArrayList<>(size);
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
       list.add(null);
     }
     return list;
   }
-  
+
   private void setPieces(Collection<Piece> pieces) {
     int piecesCount = pieces.size();
-    if(piecesCount != rows*cols) {
-      throw new IllegalArgumentException("Bad pieces collection size (" + piecesCount + ") for puzzle[" + rows + "][" + cols +"]");
+    if (piecesCount != rows * cols) {
+      throw new IllegalArgumentException("Bad pieces collection size (" + piecesCount + ") for puzzle[" + rows + "][" + cols + "]");
     }
     else {
       addAll(pieces);
     }
   }
-  
+
   public Piece getPiece(int row, int col) {
     int index = getIndex(row, col);
     return items.get(index);
   }
 
   /**
-   * @param piece null means there is no piece in the slot
+   * @param piece
+   *          null means there is no piece in the slot
    * @param row
    * @param col
    */
@@ -57,11 +58,11 @@ public class Puzzle extends ItemStore<Piece> {
     int index = getIndex(row, col);
     items.set(index, piece);
   }
-  
+
   private int getIndex(int row, int col) {
     return row * cols + col;
   }
-  
+
   public int getRows() {
     return rows;
   }
@@ -70,27 +71,27 @@ public class Puzzle extends ItemStore<Piece> {
     return cols;
   }
 
-  public Path getStateFile() {
+  public URL getStateFile() {
     return stateFile;
   }
 
-  public void setStateFile(Path stateFile) {
+  public void setStateFile(URL stateFile) {
     this.stateFile = stateFile;
   }
 
-  public Path getFacesFile() {
+  public URL getFacesFile() {
     return facesFile;
   }
 
-  public Path getPiecesFile() {
+  public URL getPiecesFile() {
     return piecesFile;
   }
 
-  public void setFacesFile(Path facesFile) {
+  public void setFacesFile(URL facesFile) {
     this.facesFile = facesFile;
   }
 
-  public void setPiecesFile(Path piecesFile) {
+  public void setPiecesFile(URL piecesFile) {
     this.piecesFile = piecesFile;
   }
 }

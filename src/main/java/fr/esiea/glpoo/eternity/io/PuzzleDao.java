@@ -4,9 +4,14 @@ import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,29 +29,22 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
   private final static OrientationAdapter oa = new OrientationAdapter();
 
   
-  /**
-   * @return an existing game, loaded
-   * @throws IOException
-   */
-  public PuzzleParseReport parse(Path stateFile) throws IOException {
-    return parse(stateFile, 0);
+  
+  public PuzzleParseReport parse(URL stateFileUrl) throws IOException {
+    return parse(stateFileUrl, DEFAULT_MAX_ERRORS);
   }
-
-  /**
-   * @return an existing game, loaded
-   * @throws IOException
-   */
-  public PuzzleParseReport parse(Path stateFile, int maxErrors) throws IOException {
-    try(BufferedReader br = Files.newBufferedReader(stateFile, charset)) {
-      PuzzleParseContext context = new PuzzleParseContext(stateFile);
-      return parse(context, br, maxErrors);
+  
+  public PuzzleParseReport parse(URL stateFileUrl, int maxErrors) throws IOException {
+    try(InputStreamReader isr = new InputStreamReader(stateFileUrl.openStream(), charset)) {
+      PuzzleParseContext context = new PuzzleParseContext(stateFileUrl);
+      return parse(context, isr, maxErrors);
     }
   }
   
   
   @Override
   public PuzzleParseReport parse(PuzzleParseContext context, Reader reader, int maxErrors) throws IOException {
-    Path stateFile = context.getStateFile();
+    URL stateFile = context.getStateFile();
 
     try(BufferedReader br = new BufferedReader(reader)) {
       String line;
@@ -55,7 +53,7 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
           if(line.startsWith(PREFIX_PIECES)) {
             if(context.getPiecesFile() == null) {
               String piecesFileName = line.substring(PREFIX_PIECES.length()).trim();
-              Path piecesFile = stateFile.resolveSibling(piecesFileName);
+              URL piecesFile = Utils.resolveSibling(stateFile, piecesFileName);
               context.setPiecesFile(piecesFile);
             }
             else {
@@ -65,7 +63,7 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
           else if(line.startsWith(PREFIX_FACES)) {
             if(context.getFacesFile() == null) {
               String facesFileName = line.substring(PREFIX_FACES.length()).trim();
-              Path facesFile = stateFile.resolveSibling(facesFileName);
+              URL facesFile = Utils.resolveSibling(stateFile, facesFileName);
               context.setFacesFile(facesFile);
             }
             else {
@@ -102,7 +100,7 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
       finalReport.addErrors(piecesParseReport.getErrors());
       if(!piecesParseReport.isExceeded()) {
 
-        Path piecesFile = context.getPiecesFile();
+        URL piecesFile = context.getPiecesFile();
         ItemStore<Piece> pieceStore = piecesParseReport.getOutcome();
         context.setPieceStore(pieceStore);
         
@@ -125,15 +123,15 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
 
   //FIXME throw exception if 1
   public CsvParseReport<ItemStore<Face>> loadFaces(PuzzleParseContext context) throws IOException {
-    try(BufferedReader br = Files.newBufferedReader(context.getFacesFile(), charset)) {
-      return new FaceDao().parse(null, br);
+    try(InputStreamReader isr = new InputStreamReader(context.getFacesFile().openStream(), charset)) {
+      return new FaceDao().parse(null, isr);
     }
   }
 
   //FIXME throw exception if 1
   public CsvParseReport<ItemStore<Piece>> loadPieces(PuzzleParseContext context) throws IOException {
-    try(BufferedReader br = Files.newBufferedReader(context.getPiecesFile(), charset)) {
-      return new PieceDao().parse(context.getFaceStore(), br);
+    try(InputStreamReader isr = new InputStreamReader(context.getPiecesFile().openStream(), charset)) {
+      return new PieceDao().parse(context.getFaceStore(), isr);
     }
   }
   
@@ -159,7 +157,7 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
     
     Puzzle puzzle = new Puzzle(4, 4);
     puzzle.setFacesFile(context.getFacesFile());
-    puzzle.setPiecesFile(context.getFacesFile());
+    puzzle.setPiecesFile(context.getPiecesFile());
     puzzle.setStateFile(context.getStateFile());
     return puzzle;
   }
@@ -212,10 +210,10 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
       bw.newLine();
       
       
-      bw.append(PREFIX_FACES).append(" ").append(puzzle.getFacesFile().getFileName().toString()); //FIXME the faces file is supposed to be in the same folder as the state file
+      bw.append(PREFIX_FACES).append(" ").append(Utils.getFileName(puzzle.getFacesFile())); //FIXME the faces file is supposed to be in the same folder as the state file
       bw.newLine();
 
-      bw.append(PREFIX_PIECES).append(" ").append(puzzle.getPiecesFile().getFileName().toString()); //FIXME idem
+      bw.append(PREFIX_PIECES).append(" ").append(Utils.getFileName(puzzle.getPiecesFile())); //FIXME idem
       bw.newLine();
       
       
@@ -232,7 +230,7 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
         i++;
       }
       
-      puzzle.setStateFile(stateFile);
+      puzzle.setStateFile(stateFile.toUri().toURL());
     }
   }
 }

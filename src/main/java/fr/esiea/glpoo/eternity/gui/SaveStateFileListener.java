@@ -3,8 +3,11 @@ package fr.esiea.glpoo.eternity.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JOptionPane;
 
@@ -22,7 +25,16 @@ public class SaveStateFileListener implements ActionListener {
   @Override
   public void actionPerformed(ActionEvent e) {
     Puzzle puzzle = pf.getPuzleDest();
-    Path stateFile = DialogUtils.chooseFile(puzzle.getStateFile().getParent(), "Choose state file");
+    
+    Path parent;
+    try {
+      parent = Paths.get(puzzle.getStateFile().toURI()).getParent();
+    }
+    catch(FileSystemNotFoundException | URISyntaxException ex) { //eg http protocol can's be reversed to Path by default
+      parent = null;
+    }
+    
+    Path stateFile = DialogUtils.chooseFile(parent, "Choose state file");
     if(stateFile != null) {
       if(!Files.exists(stateFile) || overwriteQuestion()) {
         try {
