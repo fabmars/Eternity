@@ -109,7 +109,9 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
 
     
     //rotate button
-    rotateButton.addActionListener(new RotateActionListener(tableDest, this));
+    RotateActionListener rotateActionListener = new RotateActionListener(tableDest, this);
+    rotateButton.addActionListener(rotateActionListener);
+    tableDest.addMouseListener(rotateActionListener);
     
     //restart button
     restartActionListener = new RestartActionListener(tmSource, tmDest);
