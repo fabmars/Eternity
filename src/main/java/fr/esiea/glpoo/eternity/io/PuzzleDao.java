@@ -220,10 +220,10 @@ public class PuzzleDao extends GenericDao<PieceCoordinates, PuzzleParseContext, 
       int i = 0, cols = puzzle.getCols();
       for(Piece piece : puzzle) {
         if(piece != null) {
-          bw.append('P').append(' ')
-            .append(Integer.toString(piece.getId())).append(' ')
-            .append(Integer.toString(i%cols+1)).append(' ')
-            .append(Integer.toString(i/cols+1)).append(' ')
+          bw.append('P').append(';')
+            .append(Integer.toString(piece.getId())).append(';')
+            .append(Integer.toString(i%cols+1)).append(';')
+            .append(Integer.toString(i/cols+1)).append(';')
             .append(oa.getAsString(piece.getOrientation()));
           bw.newLine();
         }        
