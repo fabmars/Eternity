@@ -15,7 +15,6 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -32,10 +31,9 @@ public class PuzzleFrame extends JFrame {
 
   private PuzzleTableModel tmSource;
   private PuzzleTableModel tmDest;
+  private JTimer timerPane;
 
-  /**
-   * Launch the application.
-   */
+
   @Deprecated
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
@@ -83,9 +81,9 @@ public class PuzzleFrame extends JFrame {
 
     rightPane.setLayout(new GridBagLayout());
 
-    JLabel timerPane = new JLabel("TIMER");
+    timerPane = new JTimer();
     rightPane.add(timerPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-
+    
     JPanel buttonsPane = new JPanel();
     buttonsPane.setLayout(new GridLayout(2, 2, 5, 5));
     JButton rotateButton = new JButton("Rotate");
@@ -103,6 +101,9 @@ public class PuzzleFrame extends JFrame {
 
     // Drag'n'drop
     new PieceTransferHandler(tableSource, tableDest);
+    
+    new Thread(timerPane).start();
+    //timerPane.start();
   }
 
   public void openStateFile(Path stateFile) {

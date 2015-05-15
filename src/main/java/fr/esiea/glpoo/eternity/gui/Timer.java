@@ -9,8 +9,12 @@ public class Timer {
 
   
   public synchronized void start() {
+    start(0L);
+  }
+
+  public synchronized void start(long elapsed) {
     if (!isStarted()) {
-      startTime = baseTime = getTime();
+      startTime = baseTime = (getTime() - elapsed);
       started = true;
     }
     else if (isPaused()) {
