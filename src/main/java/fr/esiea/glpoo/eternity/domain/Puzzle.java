@@ -121,9 +121,8 @@ public class Puzzle extends ItemStore<Piece> {
       }
     }
     
-    int r = 0, c = 0;
-    while(r < rows-1) {
-      while(c < cols-1) {
+    for(int r = 0; r < rows-1; r++) {
+      for(int c = 0; c < cols-1; c++) {
         Piece p1 = getPiece(r, c);
         Piece p2 = getPiece(r, c+1);
         Piece p3 = getPiece(r+1, c);

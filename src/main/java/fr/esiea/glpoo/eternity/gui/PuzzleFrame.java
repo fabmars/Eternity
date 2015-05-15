@@ -195,8 +195,8 @@ public class PuzzleFrame extends JFrame implements SolutionHandler {
   @Override
   public void checkSolved(Puzzle puzzle) {
     if(puzzle.isSolved()) {
-      DialogUtils.info("PUZZLE SOLVED, WELL DONE!!!");
       setGameEnabled(false);
+      DialogUtils.info("PUZZLE SOLVED, WELL DONE!!!");
     }
   }
   
