@@ -23,6 +23,7 @@ public class RotateActionListener implements ActionListener {
       if(piece != null) { //there is some piece in the cdell
         piece.rotateClockwise();
         table.getModel().fireTableCellUpdated(row, col);
+        table.checkSolved();
       }
     }
   }

@@ -115,6 +115,8 @@ public class PieceTransferHandler extends TransferHandler {
         if(selectedRow >=0 && selectedCol >= 0) { //if some cell was previously selected, it has to be redrawn too
           model.fireTableCellUpdated(selectedRow, selectedCol);
         }
+        
+        table.checkSolved();
         return true;
       }
     }
